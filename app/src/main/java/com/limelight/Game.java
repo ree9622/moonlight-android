@@ -2320,6 +2320,58 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         return true;
     }
 
+    private void handlePointerLongPressDrag(MotionEvent event, int buttonState) {
+        if (!prefConfig.trackpadLongPressDrag) {
+            return;
+        }
+
+        int action = event.getActionMasked();
+        boolean primaryPressed = (buttonState & MotionEvent.BUTTON_PRIMARY) != 0;
+
+        if (action == MotionEvent.ACTION_DOWN && !primaryPressed) {
+            pendingDrag = true;
+            synthClickPending = true;
+            lastTouchDownX = event.getX();
+            lastTouchDownY = event.getY();
+            synthTouchDownTime = event.getEventTime();
+            timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
+            timerHandler.postDelayed(trackpadLongPressDragRunnable, prefConfig.trackpadDragDropThreshold);
+            return;
+        }
+
+        if (action == MotionEvent.ACTION_MOVE && synthClickPending && !isDragging && !primaryPressed) {
+            double positionDelta = Math.sqrt(
+                    Math.pow(event.getX() - lastTouchDownX, 2) +
+                            Math.pow(event.getY() - lastTouchDownY, 2)
+            );
+
+            if (positionDelta > prefConfig.trackpadDragMoveTolerance) {
+                pendingDrag = false;
+                timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
+            } else if (event.getEventTime() - synthTouchDownTime >= prefConfig.trackpadDragDropThreshold) {
+                startPendingTrackpadDrag();
+            }
+            return;
+        }
+
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
+            if (isDragging) {
+                isDragging = false;
+                conn.sendMouseButtonUp(MouseButtonPacket.BUTTON_LEFT);
+            }
+            pendingDrag = false;
+            synthClickPending = false;
+            return;
+        }
+
+        if (action == MotionEvent.ACTION_BUTTON_PRESS && primaryPressed) {
+            timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
+            pendingDrag = false;
+            synthClickPending = false;
+        }
+    }
+
     public boolean handleFocusChange(boolean hasFocus) {
         if (connected && prefConfig.smartClipboardSync) {
             if (hasFocus) {
@@ -2907,6 +2959,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     // Android to synthesize d-pad events.
                     return true;
                 }
+
+                handlePointerLongPressDrag(event, buttonState);
 
                 // Always update the position before sending any button events. If we're
                 // dealing with a stylus without hover support, our position might be
