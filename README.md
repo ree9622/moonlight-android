@@ -1,87 +1,125 @@
-# Artemis Android
+# Artemis BackSwipe / 아르테미스 백스와이프
 
-> 한국어 안내: 이 저장소의 개인 포크 변경사항은 [BACKSWIPE_KO_EN.md](BACKSWIPE_KO_EN.md)에 정리되어 있습니다.  
-> English note: This personal fork's changes are documented in [BACKSWIPE_KO_EN.md](BACKSWIPE_KO_EN.md).
+Artemis BackSwipe는 [Artemis Android](https://github.com/ClassicOldSong/moonlight-android)를 기반으로 한 개인 포크입니다.  
+원본 Artemis는 Apollo/Sunshine 기반 Windows 원격 스트리밍 클라이언트이고, 이 포크는 한국어 사용자와 Android 폴더블 + 외장 터치패드 키보드 환경을 더 잘 지원하기 위해 만들었습니다.
 
-Previously named Moonlight Noir
+## 이 프로젝트를 만든 이유
 
-An open source client for [Apollo](https://github.com/ClassicOldSong/Apollo)/[Sunshine](https://github.com/LizardByte/Sunshine).
+이 포크의 목적은 두 가지입니다.
 
-Artemis Android will allow you to stream your collection of games from your Windows PC to your Android device,
-whether in your own home or over the internet.
+1. 앱 전체의 한국어 지원을 보강합니다.
+2. Android 폴더블 기기와 외장 터치패드 키보드에서 아직 구현되지 않았거나 불완전한 원격 데스크톱 입력 기능을 직접 구현합니다.
 
-Artemis is currently the best fork of Moonlight with loads of optimizations for office usage.
+특히 Galaxy Z Fold 계열에서 Artemis로 Windows PC에 접속하고, Nillkin 같은 접이식 키보드의 터치패드를 사용할 때 다음 문제가 있었습니다.
 
-A more seamless experience with virtual display will be Artemis paired with [Apollo](https://github.com/ClassicOldSong/Apollo).
+- 터치패드 좌우 스와이프로 Chrome/Edge 뒤로가기와 앞으로가기가 되지 않음
+- 창 테두리, 슬라이더, UI 핸들처럼 왼쪽 버튼을 누른 채 움직여야 하는 조작이 불안정함
+- 외장 키보드의 Command/Meta 키가 Windows 키처럼 전달되지 않는 경우가 있음
+- 설정과 메뉴에 영어가 많이 남아 있어 기능 의미를 파악하기 어려움
 
-# Features
+이 저장소는 위 문제를 빠르게 해결하기 위한 실사용 빌드입니다.
 
-If you switch back to the main stream version, you'll be missing the following awesome features which are very unlikely to be added there:
+## 주요 변경사항
 
-1. Custom virtual buttons with import and export support.
-2. [Custom resolutions](https://github.com/moonlight-stream/moonlight-android/pull/1349).
-3. Custom bitrates.
-4. [Multiple mouse mode switching](https://github.com/moonlight-stream/moonlight-android/pull/1304) (normal mouse, [multi-touch](https://github.com/moonlight-stream/moonlight-android/pull/1364), touchpad, disabled, local cursor mode).
-5. Optimized virtual gamepad skins and free joystick.
-6. External monitor mode.
-7. Joycon D-pad support.
-8. Simplified performance information display.
-9. [Game back menu](https://github.com/moonlight-stream/moonlight-android/pull/1171).
-10. Custom shortcut commands.
-11. Easy soft keyboard switching.
-12. Portrait mode.
-13. Display on top mode, useful for foldable phones.
-14. [Virtual touchpad space and sensitivity adjustment](https://github.com/moonlight-stream/moonlight-android/issues/1348#issuecomment-2236344729) for playing right-click view games, such as Warcraft.
-15. Force use device's own vibration motor (in case your gamepad's vibration is not effective).
-16. Gamepad debugging page to view gamepad vibration and gyroscope information, as well as Android kernel version information.
-17. Trackpad tap/scrolling support
-18. Natural track pad mode with touch screen
-19. Non-QWERTY keyboard layout support
-20. Quick Meta key with physical BACK button
-21. Frame rate lock fix for some devices
-22. Video scale mode: Fit/Fill/Stretch
-23. View pan/zoom support
-24. Rotate screen in-game
-25. Add option to quit app directly
-26. Samsung DeX scrolling support
-27. Proper click/scroll/right-click for trackpad on generic Android tablet when using local cursor
-28. Virtual Display integration with [Apollo](https://github.com/ClassicOldSong/Apollo)
-29. Server Command integration with [Apollo](https://github.com/ClassicOldSong/Apollo)
-30. Clipboard sync (requires Apollo)
-31. SBS 3D for external Displays (Using AI MiDaS v2 Lite)
+- 한국어 리소스 전수 보강
+  - 기본 문자열 667개 대비 한국어 문자열 667개
+  - 한국어 누락 0개
+  - 설정 화면 참조 문자열 누락 0개
 
-# Disclaimer
+- 브라우저 뒤로/앞으로 제스처
+  - 외장 터치패드의 강한 좌우 스와이프를 `Alt+Left`, `Alt+Right`로 변환
+  - Chrome, Edge 등 Windows 브라우저에서 뒤로/앞으로로 동작
+  - 설정에서 켜기/끄기, 방향 반전, 감도, 반복 간격 조절 가능
 
-This is the `go away` version of Moonlight Android.
+- 터치패드 드래그 개선
+  - 터치패드 길게 누르기로 왼쪽 마우스 버튼 유지
+  - 창 크기 조절, 슬라이더 조작, 파일 드래그 같은 UI 핸들 조작 개선
+  - Android 터치패드 제스처 경로와 외장 마우스/포인터 입력 경로를 모두 보강
 
-I got kicked from Moonlight and Sunshine's Discord server literally for helping people out.
+- Windows 키 전달 보강
+  - 외장 키보드의 좌/우 Command 또는 Meta 키를 Windows 키 down/up 이벤트로 직접 전송
+  - 단독 Windows 키 입력이 Start/Win 키처럼 동작하도록 개선
 
-This is what I got for finding a bug, opened an issue, getting no response, troubleshoot myself, fixed the issue myself, shared it by PR to the main repo hoping my efforts can help someone else during the maintainance gap.
+- 설정 설명 개선
+  - 입력, 터치패드, 원격 데스크톱 관련 설정 문구를 한국어로 더 이해하기 쉽게 정리
 
-Yes, I'm going away. Fixes and improvements on this fork are not necessarily be merged to the main repo either. I have also started [a fork of Sunshine called Apollo](https://github.com/ClassicOldSong/Apollo) and will add useful features that will never get merged by the main repo shortly. [Apollo](https://github.com/ClassicOldSong/Apollo) and [Moonlight Noir](https://github.com/ClassicOldSong/moonlight-android) will no longer be compatible with OG Sunshine and OG Moonlight eventually, but they'll work even better with much more carefully designed features.
+## 다운로드
 
-The main repo had stayed silent for 5 months, with nobody actually responding to issues, and people are getting totally no help besides the limited FAQ in their Discord server. I tried to answer issues and questions, solve problems within my ablilty but I got kicked out just for helping others.
+최신 개인 빌드 릴리스:
 
-**PRs for feature improvements are welcomed here unlike the main repo, your ideas are more likely to be appreciated and your efforts are actually being respected. We welcome people who can and willing to share their efforts, helping yourselves and other people in need.**
+- [v20.2.6-backswipe-ko-4](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-4)
+- [APK 직접 다운로드](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-4/artemis-backswipe-full-ko-pointer-drag-arm64-debug.apk)
 
-**Update**: They have contacted me and apologized for this incident, but the fact it **happened** still motivated me to start my own fork.
+Galaxy Z Fold 계열은 일반적으로 `arm64-v8a` APK를 사용하면 됩니다.
 
-## Downloads
-* [Download APK directly](https://github.com/ClassicOldSong/moonlight-android/releases)
-* [Use Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.limelight.noir%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FClassicOldSong%2Fmoonlight-android%22%2C%22author%22%3A%22ClassicOldSong%22%2C%22name%22%3A%22Artemis%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22nonRoot%5C%22%2C%5C%22matchGroutToUse%5C%22%3A%5C%22%241%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v(.%2B)%5C%22%7D%22%7D) (recommended)
+## 사용 팁
 
-## Building
-* Install Android Studio and the Android NDK
-* Run ‘git submodule update --init --recursive’ from within moonlight-android/
-* In moonlight-android/, create a file called ‘local.properties’. Add an ‘ndk.dir=’ property to the local.properties file and set it equal to your NDK directory.
-* Build the APK using Android Studio or gradle
+브라우저 뒤로/앞으로:
 
-## Authors
+1. Windows Chrome 또는 Edge에서 커서를 페이지 위에 둡니다.
+2. 터치패드에서 좌우로 강하게 스와이프합니다.
+3. 방향이 반대로 느껴지면 설정에서 브라우저 뒤로/앞으로 방향 반전을 켭니다.
+4. 너무 쉽게 실행되면 브라우저 제스처 감도를 올립니다.
 
-* [Cameron Gutman](https://github.com/cgutman)  
-* [Diego Waxemberg](https://github.com/dwaxemberg)  
-* [Aaron Neyer](https://github.com/Aaronneyer)  
-* [Andrew Hennessy](https://github.com/yetanothername)
+창 크기 조절/슬라이더 드래그:
 
-Moonlight is the work of students at [Case Western](http://case.edu) and was
-started as a project at [MHacks](http://mhacks.org).
+1. 창 테두리나 슬라이더 핸들 위에 커서를 올립니다.
+2. 터치패드에 한 손가락을 올리고 잠깐 기다립니다.
+3. 그대로 움직여 크기 조절이나 드래그가 되는지 확인합니다.
+4. 작은 핸들이 잘 잡히지 않으면 드래그 전 이동 허용 범위를 올립니다.
+
+## 한계와 다음 확인 필요 사항
+
+Android/Samsung OS가 특정 키나 터치패드 이벤트를 앱에 전달하지 않으면 앱 레벨에서 처리할 수 없습니다.  
+특정 키보드에서 여전히 동작하지 않는 입력이 있으면 실제 Android `KeyEvent` 또는 `MotionEvent`를 화면에 표시하는 진단 빌드로 확인해야 합니다.
+
+## 빌드
+
+```bash
+git submodule update --init --recursive
+JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" \
+ANDROID_HOME="$HOME/Library/Android/sdk" \
+ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
+./gradlew assembleNonRoot_gameDebug
+```
+
+빌드 결과는 보통 다음 경로에 생성됩니다.
+
+```text
+app/build/outputs/apk/nonRoot_game/debug/
+```
+
+## 원본 프로젝트
+
+이 포크는 ClassicOldSong의 Artemis Android를 기반으로 합니다.
+
+- Upstream: https://github.com/ClassicOldSong/moonlight-android
+- Apollo: https://github.com/ClassicOldSong/Apollo
+- Sunshine: https://github.com/LizardByte/Sunshine
+
+원본 Artemis의 설명에 따르면 Artemis Android는 Apollo/Sunshine을 통해 Windows PC의 게임과 데스크톱을 Android 기기로 스트리밍하기 위한 오픈소스 클라이언트입니다.
+
+## English Summary
+
+Artemis BackSwipe is a personal fork of [Artemis Android](https://github.com/ClassicOldSong/moonlight-android).
+
+This fork exists to:
+
+1. Complete and improve Korean localization.
+2. Implement missing or incomplete remote desktop input features for Android foldables and external trackpad keyboards.
+
+Key changes:
+
+- Full Korean string coverage: 667/667 default strings translated.
+- Horizontal external trackpad swipes can be converted to browser back/forward via `Alt+Left` and `Alt+Right`.
+- Long-press drag handling is improved for window resizing, sliders, and other UI handles.
+- Physical Command/Meta keys are forwarded directly as Windows keys.
+- Korean settings text for input, trackpad, and remote desktop usage has been rewritten for clarity.
+
+Latest release:
+
+- [v20.2.6-backswipe-ko-4](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-4)
+- [Direct APK download](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-4/artemis-backswipe-full-ko-pointer-drag-arm64-debug.apk)
+
+If a device or Android build does not deliver a key or motion event to the app, it cannot be fixed purely at the app layer. In that case, a diagnostic build that displays raw `KeyEvent` and `MotionEvent` data is needed.
+
