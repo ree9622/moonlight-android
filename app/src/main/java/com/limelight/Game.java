@@ -2031,6 +2031,34 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         return (byte) modifierFlags;
     }
 
+    private boolean sendMetaKeyDirectly(KeyEvent event, boolean down) {
+        short translated;
+
+        if (event.getKeyCode() == KeyEvent.KEYCODE_META_LEFT) {
+            translated = (short)KeyboardTranslator.VK_LWIN;
+        }
+        else if (event.getKeyCode() == KeyEvent.KEYCODE_META_RIGHT) {
+            translated = (short)0x5c;
+        }
+        else {
+            return false;
+        }
+
+        if (!grabbedInput) {
+            return false;
+        }
+
+        if (down && event.getRepeatCount() > 0) {
+            return true;
+        }
+
+        conn.sendKeyboardInput(translated,
+                down ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP,
+                (byte)0,
+                keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
+        return true;
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return handleKeyDown(event) || super.onKeyDown(keyCode, event);
@@ -2046,6 +2074,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         int deviceId = event.getDeviceId();
         if (prefConfig.ignoreSynthEvents && deviceId <= 0) {
             return false;
+        }
+
+        if (sendMetaKeyDirectly(event, true)) {
+            return true;
         }
 
         // Handle a synthetic back button event that some Android OS versions
@@ -2137,6 +2169,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         int deviceId = event.getDeviceId();
         if (prefConfig.ignoreSynthEvents && deviceId <= 0) {
             return false;
+        }
+
+        if (sendMetaKeyDirectly(event, false)) {
+            return true;
         }
 
         // Handle a synthetic back button event that some Android OS versions
