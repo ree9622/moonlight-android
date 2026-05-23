@@ -560,6 +560,66 @@
             android:title="@string/title_capture_hanja_key"
             app:iconSpaceReserved="false" />
         <Preference
+            android:key="option_capture_f1_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f2_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f3_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f4_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f5_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f6_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f7_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f8_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f9_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f10_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f11_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_f12_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_function_key_generic"
+            app:iconSpaceReserved="false" />
+        <Preference
             android:key="option_reset_custom_keys"
             android:summary="@string/summary_reset_custom_keys"
             android:title="@string/title_reset_custom_keys"

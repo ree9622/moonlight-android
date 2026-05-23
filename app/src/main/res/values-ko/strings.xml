@@ -427,6 +427,8 @@
     <string name="title_capture_ctrl_key">Ctrl 키로 사용할 키 학습</string>
     <string name="title_capture_hangul_key">한/영 키로 사용할 키 학습</string>
     <string name="title_capture_hanja_key">한자 키로 사용할 키 학습</string>
+    <string name="title_capture_function_key">F%1$d 키로 사용할 키 학습</string>
+    <string name="title_capture_function_key_generic">기능 키로 사용할 키 학습</string>
     <string name="summary_capture_custom_key">누른 다음, 매핑할 실제 키보드 키를 누릅니다.</string>
     <string name="summary_capture_custom_key_current">현재: %1$s, scan=%2$d. 다른 키로 바꾸려면 다시 누릅니다.</string>
     <string name="title_reset_custom_keys">학습한 키 매핑 초기화</string>
@@ -440,6 +442,7 @@
     <string name="learned_key_target_ctrl">Ctrl 키</string>
     <string name="learned_key_target_hangul">한/영 전환</string>
     <string name="learned_key_target_hanja">한자 키</string>
+    <string name="learned_key_target_function_key">F%1$d 키</string>
     <string name="meta_key_action_left_windows">왼쪽 Windows 키</string>
     <string name="meta_key_action_right_windows">오른쪽 Windows 키</string>
     <string name="meta_key_action_alt">Alt 키</string>

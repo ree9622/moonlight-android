@@ -2127,9 +2127,13 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         else if (matchesCustomLearnedKey(event, prefConfig.customHanjaKeyCode, prefConfig.customHanjaScanCode)) {
             return VK_HANJA;
         }
-        else {
-            return 0;
+        for (int i = 0; i < prefConfig.customFunctionKeyCodes.length; i++) {
+            if (matchesCustomLearnedKey(event, prefConfig.customFunctionKeyCodes[i],
+                    prefConfig.customFunctionScanCodes[i])) {
+                return (short)(KeyboardTranslator.VK_F1 + i);
+            }
         }
+        return 0;
     }
 
     private boolean matchesCustomLearnedKey(KeyEvent event, int keyCode, int scanCode) {

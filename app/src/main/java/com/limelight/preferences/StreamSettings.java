@@ -185,38 +185,51 @@ public class StreamSettings extends AppCompatActivity {
         private AlertDialog customKeyCaptureDialog;
         private CustomKeyCaptureTarget waitingForCustomKeyTarget;
 
-        private static final CustomKeyCaptureTarget[] CUSTOM_KEY_CAPTURE_TARGETS = new CustomKeyCaptureTarget[] {
-                new CustomKeyCaptureTarget("option_capture_left_win_key",
-                        PreferenceConfiguration.CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING,
-                        PreferenceConfiguration.CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING,
-                        R.string.learned_key_target_left_windows),
-                new CustomKeyCaptureTarget("option_capture_right_win_key",
-                        PreferenceConfiguration.CUSTOM_RIGHT_WIN_KEYCODE_PREF_STRING,
-                        PreferenceConfiguration.CUSTOM_RIGHT_WIN_SCANCODE_PREF_STRING,
-                        R.string.learned_key_target_right_windows),
-                new CustomKeyCaptureTarget("option_capture_alt_key",
-                        PreferenceConfiguration.CUSTOM_ALT_KEYCODE_PREF_STRING,
-                        PreferenceConfiguration.CUSTOM_ALT_SCANCODE_PREF_STRING,
-                        R.string.learned_key_target_alt),
-                new CustomKeyCaptureTarget("option_capture_ctrl_key",
-                        PreferenceConfiguration.CUSTOM_CTRL_KEYCODE_PREF_STRING,
-                        PreferenceConfiguration.CUSTOM_CTRL_SCANCODE_PREF_STRING,
-                        R.string.learned_key_target_ctrl),
-                new CustomKeyCaptureTarget("option_capture_hangul_key",
-                        PreferenceConfiguration.CUSTOM_HANGUL_KEYCODE_PREF_STRING,
-                        PreferenceConfiguration.CUSTOM_HANGUL_SCANCODE_PREF_STRING,
-                        R.string.learned_key_target_hangul),
-                new CustomKeyCaptureTarget("option_capture_hanja_key",
-                        PreferenceConfiguration.CUSTOM_HANJA_KEYCODE_PREF_STRING,
-                        PreferenceConfiguration.CUSTOM_HANJA_SCANCODE_PREF_STRING,
-                        R.string.learned_key_target_hanja),
-        };
+        private static final CustomKeyCaptureTarget[] CUSTOM_KEY_CAPTURE_TARGETS = createCustomKeyCaptureTargets();
+
+        private static CustomKeyCaptureTarget[] createCustomKeyCaptureTargets() {
+            CustomKeyCaptureTarget[] targets = new CustomKeyCaptureTarget[6 + PreferenceConfiguration.CUSTOM_FUNCTION_KEY_COUNT];
+            targets[0] = new CustomKeyCaptureTarget("option_capture_left_win_key",
+                    PreferenceConfiguration.CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING,
+                    PreferenceConfiguration.CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING,
+                    R.string.learned_key_target_left_windows);
+            targets[1] = new CustomKeyCaptureTarget("option_capture_right_win_key",
+                    PreferenceConfiguration.CUSTOM_RIGHT_WIN_KEYCODE_PREF_STRING,
+                    PreferenceConfiguration.CUSTOM_RIGHT_WIN_SCANCODE_PREF_STRING,
+                    R.string.learned_key_target_right_windows);
+            targets[2] = new CustomKeyCaptureTarget("option_capture_alt_key",
+                    PreferenceConfiguration.CUSTOM_ALT_KEYCODE_PREF_STRING,
+                    PreferenceConfiguration.CUSTOM_ALT_SCANCODE_PREF_STRING,
+                    R.string.learned_key_target_alt);
+            targets[3] = new CustomKeyCaptureTarget("option_capture_ctrl_key",
+                    PreferenceConfiguration.CUSTOM_CTRL_KEYCODE_PREF_STRING,
+                    PreferenceConfiguration.CUSTOM_CTRL_SCANCODE_PREF_STRING,
+                    R.string.learned_key_target_ctrl);
+            targets[4] = new CustomKeyCaptureTarget("option_capture_hangul_key",
+                    PreferenceConfiguration.CUSTOM_HANGUL_KEYCODE_PREF_STRING,
+                    PreferenceConfiguration.CUSTOM_HANGUL_SCANCODE_PREF_STRING,
+                    R.string.learned_key_target_hangul);
+            targets[5] = new CustomKeyCaptureTarget("option_capture_hanja_key",
+                    PreferenceConfiguration.CUSTOM_HANJA_KEYCODE_PREF_STRING,
+                    PreferenceConfiguration.CUSTOM_HANJA_SCANCODE_PREF_STRING,
+                    R.string.learned_key_target_hanja);
+            for (int i = 0; i < PreferenceConfiguration.CUSTOM_FUNCTION_KEY_COUNT; i++) {
+                int functionKeyNumber = i + 1;
+                targets[6 + i] = new CustomKeyCaptureTarget("option_capture_f" + functionKeyNumber + "_key",
+                        PreferenceConfiguration.getCustomFunctionKeyCodePrefString(functionKeyNumber),
+                        PreferenceConfiguration.getCustomFunctionScanCodePrefString(functionKeyNumber),
+                        functionKeyNumber,
+                        true);
+            }
+            return targets;
+        }
 
         private static class CustomKeyCaptureTarget {
             final String preferenceKey;
             final String keyCodePrefKey;
             final String scanCodePrefKey;
             final int titleResId;
+            final int functionKeyNumber;
 
             CustomKeyCaptureTarget(String preferenceKey, String keyCodePrefKey,
                                    String scanCodePrefKey, int titleResId) {
@@ -224,6 +237,17 @@ public class StreamSettings extends AppCompatActivity {
                 this.keyCodePrefKey = keyCodePrefKey;
                 this.scanCodePrefKey = scanCodePrefKey;
                 this.titleResId = titleResId;
+                this.functionKeyNumber = 0;
+            }
+
+            CustomKeyCaptureTarget(String preferenceKey, String keyCodePrefKey,
+                                   String scanCodePrefKey, int functionKeyNumber,
+                                   boolean functionKeyTarget) {
+                this.preferenceKey = preferenceKey;
+                this.keyCodePrefKey = keyCodePrefKey;
+                this.scanCodePrefKey = scanCodePrefKey;
+                this.titleResId = 0;
+                this.functionKeyNumber = functionKeyNumber;
             }
         }
 
@@ -1093,7 +1117,8 @@ public class StreamSettings extends AppCompatActivity {
                 return false;
             }
 
-            if (event.getAction() != KeyEvent.ACTION_DOWN || event.getRepeatCount() > 0) {
+            if ((event.getAction() != KeyEvent.ACTION_DOWN && event.getAction() != KeyEvent.ACTION_UP) ||
+                    event.getRepeatCount() > 0) {
                 return true;
             }
 
@@ -1117,7 +1142,7 @@ public class StreamSettings extends AppCompatActivity {
             waitingForCustomKeyTarget = target;
             customKeyCaptureDialog = new AlertDialog.Builder(requireContext())
                     .setTitle(R.string.dialog_capture_left_win_key_title)
-                    .setMessage(getString(R.string.dialog_capture_custom_key_message, getString(target.titleResId)))
+                    .setMessage(getString(R.string.dialog_capture_custom_key_message, getCustomKeyTargetName(target)))
                     .setOnKeyListener((dialog, keyCode, event) -> handleCustomKeyCapture(event))
                     .setNegativeButton(android.R.string.cancel, (dialog, which) -> finishCustomKeyCapture(null, false))
                     .setOnCancelListener(dialog -> finishCustomKeyCapture(null, false))
@@ -1132,7 +1157,7 @@ public class StreamSettings extends AppCompatActivity {
             }
             if (saved && target != null) {
                 Toast.makeText(getActivity(),
-                        getString(R.string.toast_custom_key_saved, getString(target.titleResId)),
+                        getString(R.string.toast_custom_key_saved, getCustomKeyTargetName(target)),
                         Toast.LENGTH_SHORT).show();
             }
         }
@@ -1155,17 +1180,28 @@ public class StreamSettings extends AppCompatActivity {
                     continue;
                 }
 
+                if (target.functionKeyNumber > 0) {
+                    capturePref.setTitle(getString(R.string.title_capture_function_key, target.functionKeyNumber));
+                }
+
                 int keyCode = getPrefs().getInt(target.keyCodePrefKey, 0);
                 int scanCode = getPrefs().getInt(target.scanCodePrefKey, 0);
                 if (keyCode == 0 && scanCode == 0) {
                     capturePref.setSummary(getString(R.string.summary_capture_custom_key,
-                            getString(target.titleResId)));
+                            getCustomKeyTargetName(target)));
                 }
                 else {
                     capturePref.setSummary(getString(R.string.summary_capture_custom_key_current,
                             KeyEvent.keyCodeToString(keyCode), scanCode));
                 }
             }
+        }
+
+        private String getCustomKeyTargetName(CustomKeyCaptureTarget target) {
+            if (target.functionKeyNumber > 0) {
+                return getString(R.string.learned_key_target_function_key, target.functionKeyNumber);
+            }
+            return getString(target.titleResId);
         }
 
         private void applyRemoteDesktopPreset() {

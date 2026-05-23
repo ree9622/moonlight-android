@@ -156,6 +156,17 @@ public class PreferenceConfiguration {
     public static final String CUSTOM_HANGUL_SCANCODE_PREF_STRING = "custom_hangul_scancode";
     public static final String CUSTOM_HANJA_KEYCODE_PREF_STRING = "custom_hanja_keycode";
     public static final String CUSTOM_HANJA_SCANCODE_PREF_STRING = "custom_hanja_scancode";
+    public static final int CUSTOM_FUNCTION_KEY_COUNT = 12;
+    private static final String CUSTOM_FUNCTION_KEYCODE_PREF_PREFIX = "custom_function_f";
+    private static final String CUSTOM_FUNCTION_SCANCODE_PREF_PREFIX = "custom_function_f";
+
+    public static String getCustomFunctionKeyCodePrefString(int functionKeyNumber) {
+        return CUSTOM_FUNCTION_KEYCODE_PREF_PREFIX + functionKeyNumber + "_keycode";
+    }
+
+    public static String getCustomFunctionScanCodePrefString(int functionKeyNumber) {
+        return CUSTOM_FUNCTION_SCANCODE_PREF_PREFIX + functionKeyNumber + "_scancode";
+    }
 
     private static final String CHECKBOX_ENABLE_COMMIT_TEXT = "checkbox_enable_commit_text";
 
@@ -420,6 +431,8 @@ public class PreferenceConfiguration {
     public int customHangulScanCode;
     public int customHanjaKeyCode;
     public int customHanjaScanCode;
+    public int[] customFunctionKeyCodes = new int[CUSTOM_FUNCTION_KEY_COUNT];
+    public int[] customFunctionScanCodes = new int[CUSTOM_FUNCTION_KEY_COUNT];
 
     public boolean bindAllUsb;
     public boolean mouseEmulation;
@@ -1091,6 +1104,11 @@ private static int getFramePacingValue(Context context) {
         config.customHangulScanCode = prefs.getInt(CUSTOM_HANGUL_SCANCODE_PREF_STRING, DEFAULT_CUSTOM_HANGUL_SCANCODE);
         config.customHanjaKeyCode = prefs.getInt(CUSTOM_HANJA_KEYCODE_PREF_STRING, DEFAULT_CUSTOM_HANJA_KEYCODE);
         config.customHanjaScanCode = prefs.getInt(CUSTOM_HANJA_SCANCODE_PREF_STRING, DEFAULT_CUSTOM_HANJA_SCANCODE);
+        for (int i = 0; i < CUSTOM_FUNCTION_KEY_COUNT; i++) {
+            int functionKeyNumber = i + 1;
+            config.customFunctionKeyCodes[i] = prefs.getInt(getCustomFunctionKeyCodePrefString(functionKeyNumber), 0);
+            config.customFunctionScanCodes[i] = prefs.getInt(getCustomFunctionScanCodePrefString(functionKeyNumber), 0);
+        }
 
         config.absoluteMouseMode = prefs.getBoolean(ABSOLUTE_MOUSE_MODE_PREF_STRING, DEFAULT_ABSOLUTE_MOUSE_MODE);
         config.enableBatteryReport = prefs.getBoolean(CHECKBOX_ENABLE_BATTERY_REPORT, DEFAULT_GAMEPAD_ENABLE_BATTERY_REPORT);

@@ -12,9 +12,9 @@ android {
         targetSdk 34
 
         versionName "20.2.6"
-        versionCode = 59
+        versionCode = 60
 
-        buildConfigField "String", "BACKSWIPE_RELEASE_TAG", "\"v20.2.6-backswipe-ko-9\""
+        buildConfigField "String", "BACKSWIPE_RELEASE_TAG", "\"v20.2.6-backswipe-ko-10\""
         buildConfigField "String", "BACKSWIPE_UPDATE_API_URL", "\"https://api.github.com/repos/ree9622/moonlight-android/releases/latest\""
         buildConfigField "String", "BACKSWIPE_RELEASES_URL", "\"https://github.com/ree9622/moonlight-android/releases\""
 

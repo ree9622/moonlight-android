@@ -508,6 +508,8 @@
     <string name="title_capture_ctrl_key">Learn Ctrl Key</string>
     <string name="title_capture_hangul_key">Learn Korean/English Key</string>
     <string name="title_capture_hanja_key">Learn Hanja Key</string>
+    <string name="title_capture_function_key">Learn F%1$d Key</string>
+    <string name="title_capture_function_key_generic">Learn Function Key</string>
     <string name="summary_capture_custom_key">Press this, then press the physical keyboard key to learn.</string>
     <string name="summary_capture_custom_key_current">Current: %1$s, scan=%2$d. Press to learn a different key.</string>
     <string name="title_reset_custom_keys">Reset Learned Keys</string>
@@ -521,6 +523,7 @@
     <string name="learned_key_target_ctrl">Ctrl Key</string>
     <string name="learned_key_target_hangul">Korean/English Toggle</string>
     <string name="learned_key_target_hanja">Hanja Key</string>
+    <string name="learned_key_target_function_key">F%1$d Key</string>
     <string name="meta_key_action_left_windows">Left Windows Key</string>
     <string name="meta_key_action_right_windows">Right Windows Key</string>
     <string name="meta_key_action_alt">Alt Key</string>
