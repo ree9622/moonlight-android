@@ -472,6 +472,11 @@
     <string name="title_share_performance_logs_button">Share Performance Logs</string>
     <string name="title_software_update">Software Update</string>
     <string name="summary_software_update">Current build: %1$s. Check the Artemis BackSwipe GitHub release for a newer APK.</string>
+    <string name="title_auto_update_check">Check for updates automatically</string>
+    <string name="summary_auto_update_check">When Settings opens, check GitHub once per day and show a prompt if a newer APK exists.</string>
+    <string name="title_apply_desktop_preset">Apply Remote Desktop Preset</string>
+    <string name="summary_apply_desktop_preset">Use recommended mouse, trackpad drag, browser gesture, and Windows key settings for Fold + external keyboard use.</string>
+    <string name="toast_desktop_preset_applied">Remote desktop preset applied.</string>
     <string name="toast_update_checking">Checking for updates...</string>
     <string name="dialog_update_available_title">Update Available</string>
     <string name="dialog_update_available_message">Installed: %1$s\nLatest: %2$s</string>
@@ -483,6 +488,18 @@
     <string name="dialog_update_open_release">Open Release</string>
     <string name="title_follow_update">Follow Update</string>
     <string name="summary_follow_update">Follow Artemis BackSwipe releases from the personal fork with Obtainium.</string>
+    <string name="title_trackpad_double_tap_drag">Double-Tap Then Drag</string>
+    <string name="summary_trackpad_double_tap_drag">Double-tap the trackpad and keep your finger down on the second tap to hold the left mouse button for window edges, sliders, and drag operations.</string>
+    <string name="title_left_meta_key_action">Left Command/Meta Key</string>
+    <string name="summary_left_meta_key_action">Choose what the left Command or Meta key sends to the Windows PC.</string>
+    <string name="title_right_meta_key_action">Right Command/Meta Key</string>
+    <string name="summary_right_meta_key_action">Choose what the right Command or Meta key sends to the Windows PC.</string>
+    <string name="meta_key_action_left_windows">Left Windows Key</string>
+    <string name="meta_key_action_right_windows">Right Windows Key</string>
+    <string name="meta_key_action_alt">Alt Key</string>
+    <string name="meta_key_action_ctrl">Ctrl Key</string>
+    <string name="meta_key_action_hangul">Korean/English Toggle</string>
+    <string name="meta_key_action_disabled">Disabled</string>
     <string name="title_special_key_layout">Special Key Layout</string>
     <string name="title_show_virtual_key">Display virtual keys on screen</string>
     <string name="summary_show_virtual_key">Display a layer of virtual special keys on the touchscreen.\nKey opacity is shared with the virtual gamepad above.</string>
@@ -635,6 +652,9 @@
     <string name="debug_info_refresh_gamepad_info">Tap to refresh gamepad info</string>
     <string name="debug_info_refresh_gamepad_list">Refresh gamepad list</string>
     <string name="debug_info_test_gamepad_rumble">Test gamepad rumble</string>
+    <string name="debug_input_clear_log">Clear input event log</string>
+    <string name="debug_input_key_event">KEY %1$s %2$s scan=%3$d meta=%4$d repeat=%5$d dev=%6$d %7$s</string>
+    <string name="debug_input_motion_event">MOTION %1$s src=%2$s buttons=%3$d tool=%4$d pointers=%5$d x=%6$.1f y=%7$.1f h=%8$.2f v=%9$.2f relX=%10$.2f relY=%11$.2f dev=%12$d %13$s</string>
     <string name="pref_enter_value_0_9999">Please enter a value between 0 and 9999.</string>
     <string name="pref_set_success">Settings saved successfully!</string>
     <string name="pref_empty_file">Empty file!</string>

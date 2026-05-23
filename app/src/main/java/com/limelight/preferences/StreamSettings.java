@@ -865,6 +865,17 @@ public class StreamSettings extends AppCompatActivity {
                 });
             }
 
+            _pref = findPreference("option_apply_desktop_preset");
+            if (_pref != null) {
+                _pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(@NonNull Preference preference) {
+                        applyRemoteDesktopPreset();
+                        return true;
+                    }
+                });
+            }
+
             _pref = findPreference("option_software_release");
             if (_pref != null) {
                 _pref.setSummary(getString(R.string.summary_software_update, BuildConfig.BACKSWIPE_RELEASE_TAG));
@@ -876,6 +887,8 @@ public class StreamSettings extends AppCompatActivity {
                     }
                 });
             }
+
+            maybeAutoCheckForBackSwipeUpdate();
 
             EditTextPreference bitrateEditPref = findPreference(PreferenceConfiguration.CUSTOM_BITRATE_PREF_STRING);
             if (bitrateEditPref != null) {
@@ -993,6 +1006,40 @@ public class StreamSettings extends AppCompatActivity {
             prefs.edit().putString(prefKey, newVal).apply();
 
             reloadSettings();
+        }
+
+        private void applyRemoteDesktopPreset() {
+            getPrefs().edit()
+                    .putBoolean("checkbox_absolute_mouse_mode", true)
+                    .putBoolean("checkbox_mouse_local_cursor", false)
+                    .putBoolean("checkbox_trackpad_browser_nav", true)
+                    .putBoolean("checkbox_trackpad_long_press_drag", true)
+                    .putBoolean("checkbox_trackpad_double_tap_drag", true)
+                    .putInt("seekbar_trackpad_drag_drop_threshold", 220)
+                    .putInt("seekbar_trackpad_drag_move_tolerance", 180)
+                    .putBoolean("checkbox_trackpad_drag_drop_vibration", true)
+                    .putBoolean("checkbox_remember_mouse_mode", true)
+                    .putString(PreferenceConfiguration.META_LEFT_ACTION_PREF_STRING, PreferenceConfiguration.META_ACTION_LEFT_WINDOWS)
+                    .putString(PreferenceConfiguration.META_RIGHT_ACTION_PREF_STRING, PreferenceConfiguration.META_ACTION_RIGHT_WINDOWS)
+                    .apply();
+            Toast.makeText(getActivity(), getString(R.string.toast_desktop_preset_applied), Toast.LENGTH_LONG).show();
+            reloadSettings();
+        }
+
+        private void maybeAutoCheckForBackSwipeUpdate() {
+            SharedPreferences prefs = getPrefs();
+            if (!prefs.getBoolean("checkbox_auto_update_check", false)) {
+                return;
+            }
+
+            long now = System.currentTimeMillis();
+            long lastCheck = prefs.getLong("pref_last_auto_update_check_ms", 0);
+            if (now - lastCheck < 24L * 60L * 60L * 1000L) {
+                return;
+            }
+
+            prefs.edit().putLong("pref_last_auto_update_check_ms", now).apply();
+            checkForBackSwipeUpdate(requireContext());
         }
 
         private void checkForBackSwipeUpdate(Context context) {

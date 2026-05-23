@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.InputDevice;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -36,6 +37,8 @@ public class DebugInfoActivity extends AppCompatActivity implements View.OnClick
     private Vibrator vibratorOnline;
     private Button bt_vibrator_value;
     private int simulatedAmplitude = 220;
+    private TextView tx_input_event_log;
+    private final StringBuilder inputEventLog = new StringBuilder();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,6 +49,7 @@ public class DebugInfoActivity extends AppCompatActivity implements View.OnClick
         TextView tx_content = findViewById(R.id.tx_content);
         bt_vibrator = findViewById(R.id.bt_vibrator);
         bt_vibrator_value = findViewById(R.id.bt_vibrator_value);
+        tx_input_event_log = findViewById(R.id.tx_input_event_log);
 
         vibrator = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -65,6 +69,104 @@ public class DebugInfoActivity extends AppCompatActivity implements View.OnClick
         showSimlateAmp();
     }
 
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        appendInputEvent(formatKeyEvent(event));
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        appendInputEvent(formatMotionEvent(event));
+        return super.dispatchGenericMotionEvent(event);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        appendInputEvent(formatMotionEvent(event));
+        return super.dispatchTouchEvent(event);
+    }
+
+    private void appendInputEvent(String line) {
+        if (tx_input_event_log == null || line == null) {
+            return;
+        }
+
+        inputEventLog.insert(0, line + "\n");
+        if (inputEventLog.length() > 8000) {
+            inputEventLog.setLength(8000);
+        }
+        tx_input_event_log.setText(inputEventLog.toString());
+    }
+
+    private String formatKeyEvent(KeyEvent event) {
+        InputDevice device = event.getDevice();
+        return getString(R.string.debug_input_key_event,
+                keyActionToString(event.getAction()),
+                KeyEvent.keyCodeToString(event.getKeyCode()),
+                event.getScanCode(),
+                event.getMetaState(),
+                event.getRepeatCount(),
+                event.getDeviceId(),
+                device != null ? device.getName() : "unknown");
+    }
+
+    private String keyActionToString(int action) {
+        if (action == KeyEvent.ACTION_DOWN) {
+            return "ACTION_DOWN";
+        }
+        else if (action == KeyEvent.ACTION_UP) {
+            return "ACTION_UP";
+        }
+        else if (action == KeyEvent.ACTION_MULTIPLE) {
+            return "ACTION_MULTIPLE";
+        }
+        else {
+            return Integer.toString(action);
+        }
+    }
+
+    private String formatMotionEvent(MotionEvent event) {
+        InputDevice device = event.getDevice();
+        return getString(R.string.debug_input_motion_event,
+                MotionEvent.actionToString(event.getActionMasked()),
+                sourceToString(event.getSource()),
+                event.getButtonState(),
+                event.getToolType(0),
+                event.getPointerCount(),
+                event.getX(),
+                event.getY(),
+                event.getAxisValue(MotionEvent.AXIS_HSCROLL),
+                event.getAxisValue(MotionEvent.AXIS_VSCROLL),
+                event.getAxisValue(MotionEvent.AXIS_RELATIVE_X),
+                event.getAxisValue(MotionEvent.AXIS_RELATIVE_Y),
+                event.getDeviceId(),
+                device != null ? device.getName() : "unknown");
+    }
+
+    private String sourceToString(int source) {
+        StringBuilder sb = new StringBuilder();
+        if ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
+            sb.append("MOUSE ");
+        }
+        if ((source & InputDevice.SOURCE_MOUSE_RELATIVE) == InputDevice.SOURCE_MOUSE_RELATIVE) {
+            sb.append("MOUSE_REL ");
+        }
+        if ((source & InputDevice.SOURCE_TOUCHPAD) == InputDevice.SOURCE_TOUCHPAD) {
+            sb.append("TOUCHPAD ");
+        }
+        if ((source & InputDevice.SOURCE_TOUCHSCREEN) == InputDevice.SOURCE_TOUCHSCREEN) {
+            sb.append("TOUCHSCREEN ");
+        }
+        if ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD) {
+            sb.append("KEYBOARD ");
+        }
+        if (sb.length() == 0) {
+            sb.append("0x").append(Integer.toHexString(source));
+        }
+        return sb.toString().trim();
+    }
+
     private void showSimlateAmp() {
         bt_vibrator_value.setText(getString(R.string.debug_info_vibration_amplitude, simulatedAmplitude));
     }
@@ -82,6 +184,13 @@ public class DebugInfoActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View v) {
         if (v.getId() == R.id.bt_vibrator_cancle) {
             cancleRumble();
+            return;
+        }
+        if (v.getId() == R.id.bt_clear_input_log) {
+            inputEventLog.setLength(0);
+            if (tx_input_event_log != null) {
+                tx_input_event_log.setText("");
+            }
             return;
         }
         // Device Vibration

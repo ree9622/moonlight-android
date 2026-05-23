@@ -393,6 +393,11 @@
     <string name="summary_smart_clipboard_sync">스트림 시작/재개 시 클립보드를 서버로 올리고, 포커스를 잃으면 서버의 클립보드를 내려받습니다. Apollo가 필요합니다.</string>
     <string name="summary_smart_clipboard_sync_toast">클립보드 동기화 상태를 토스트 메시지로 표시합니다.</string>
     <string name="summary_software_update">현재 빌드: %1$s. Artemis BackSwipe GitHub 릴리스에서 새 APK가 있는지 확인합니다.</string>
+    <string name="title_auto_update_check">업데이트 자동 확인</string>
+    <string name="summary_auto_update_check">설정을 열 때 하루 한 번 GitHub를 확인하고, 새 APK가 있으면 알려줍니다.</string>
+    <string name="title_apply_desktop_preset">원격 데스크톱 프리셋 적용</string>
+    <string name="summary_apply_desktop_preset">Fold와 외장 키보드 사용에 맞춰 마우스, 터치패드 드래그, 브라우저 제스처, Windows 키 설정을 추천값으로 바꿉니다.</string>
+    <string name="toast_desktop_preset_applied">원격 데스크톱 프리셋을 적용했습니다.</string>
     <string name="toast_update_checking">업데이트를 확인하는 중...</string>
     <string name="dialog_update_available_title">업데이트 있음</string>
     <string name="dialog_update_available_message">설치됨: %1$s\n최신: %2$s</string>
@@ -402,6 +407,18 @@
     <string name="dialog_update_error_message">GitHub 최신 릴리스를 읽지 못했습니다.\n\n%1$s</string>
     <string name="dialog_update_download_apk">APK 다운로드</string>
     <string name="dialog_update_open_release">릴리스 열기</string>
+    <string name="title_trackpad_double_tap_drag">두 번 탭 후 드래그</string>
+    <string name="summary_trackpad_double_tap_drag">터치패드를 두 번 탭하고 두 번째 탭에서 손을 떼지 않으면 왼쪽 마우스 버튼을 누른 상태로 유지합니다. 창 테두리, 슬라이더, 드래그 조작에 사용합니다.</string>
+    <string name="title_left_meta_key_action">왼쪽 Command/Meta 키</string>
+    <string name="summary_left_meta_key_action">왼쪽 Command 또는 Meta 키를 Windows PC에 어떤 키로 보낼지 선택합니다.</string>
+    <string name="title_right_meta_key_action">오른쪽 Command/Meta 키</string>
+    <string name="summary_right_meta_key_action">오른쪽 Command 또는 Meta 키를 Windows PC에 어떤 키로 보낼지 선택합니다.</string>
+    <string name="meta_key_action_left_windows">왼쪽 Windows 키</string>
+    <string name="meta_key_action_right_windows">오른쪽 Windows 키</string>
+    <string name="meta_key_action_alt">Alt 키</string>
+    <string name="meta_key_action_ctrl">Ctrl 키</string>
+    <string name="meta_key_action_hangul">한/영 전환</string>
+    <string name="meta_key_action_disabled">사용 안 함</string>
     <string name="summary_special_key_help">특수키 레이아웃과 가져오기 형식 도움말을 확인합니다.</string>
     <string name="summary_square_buttons">가상 버튼을 기본 원형 대신 사각형으로 표시합니다.</string>
     <string name="summary_top_center_display">해상도가 기기 기본 해상도와 다를 때 화면을 중앙이 아니라 위쪽 중앙에 맞춥니다.</string>
@@ -534,6 +551,9 @@
     <string name="debug_info_supported">지원됨</string>
     <string name="debug_info_test_device_vibration">기기 진동 테스트 (%s)</string>
     <string name="debug_info_test_gamepad_rumble">게임패드 진동 테스트</string>
+    <string name="debug_input_clear_log">입력 이벤트 로그 지우기</string>
+    <string name="debug_input_key_event">KEY %1$s %2$s scan=%3$d meta=%4$d repeat=%5$d dev=%6$d %7$s</string>
+    <string name="debug_input_motion_event">MOTION %1$s src=%2$s buttons=%3$d tool=%4$d pointers=%5$d x=%6$.1f y=%7$.1f h=%8$.2f v=%9$.2f relX=%10$.2f relY=%11$.2f dev=%12$d %13$s</string>
     <string name="debug_info_vibration">진동</string>
     <string name="debug_info_vibration_amplitude">진동 세기 (%d)</string>
     <string name="debug_info_vid_pid">VID/PID</string>

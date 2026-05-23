@@ -134,6 +134,7 @@ public class PreferenceConfiguration {
     private static final String SEEKBAR_TRACKPAD_SENSITIVITY_Y = "seekbar_trackpad_sensitivity_y";
     private static final String CHECKBOX_TRACKPAD_DRAG_DROP_VIBRATION = "checkbox_trackpad_drag_drop_vibration";
     private static final String CHECKBOX_TRACKPAD_LONG_PRESS_DRAG = "checkbox_trackpad_long_press_drag";
+    private static final String CHECKBOX_TRACKPAD_DOUBLE_TAP_DRAG = "checkbox_trackpad_double_tap_drag";
     private static final String SEEKBAR_TRACKPAD_DRAG_DROP_THRESHOLD = "seekbar_trackpad_drag_drop_threshold";
     private static final String SEEKBAR_TRACKPAD_DRAG_MOVE_TOLERANCE = "seekbar_trackpad_drag_move_tolerance";
     private static final String CHECKBOX_TRACKPAD_SWAP_AXIS = "checkbox_trackpad_swap_axis";
@@ -141,6 +142,8 @@ public class PreferenceConfiguration {
     private static final String CHECKBOX_TRACKPAD_BROWSER_NAV_INVERT = "checkbox_trackpad_browser_nav_invert";
     private static final String SEEKBAR_TRACKPAD_BROWSER_NAV_THRESHOLD = "seekbar_trackpad_browser_nav_threshold";
     private static final String SEEKBAR_TRACKPAD_BROWSER_NAV_COOLDOWN = "seekbar_trackpad_browser_nav_cooldown";
+    public static final String META_LEFT_ACTION_PREF_STRING = "list_left_meta_key_action";
+    public static final String META_RIGHT_ACTION_PREF_STRING = "list_right_meta_key_action";
 
     private static final String CHECKBOX_ENABLE_COMMIT_TEXT = "checkbox_enable_commit_text";
 
@@ -210,6 +213,7 @@ public class PreferenceConfiguration {
     private static final int DEFAULT_TRACKPAD_SENSITIVITY_Y = 100;
     private static final boolean DEFAULT_TRACKPAD_DRAG_DROP_VIBRATION = false;
     private static final boolean DEFAULT_TRACKPAD_LONG_PRESS_DRAG = true;
+    private static final boolean DEFAULT_TRACKPAD_DOUBLE_TAP_DRAG = true;
     private static final int DEFAULT_TRACKPAD_DRAG_DROP_THRESHOLD = 250;
     private static final int DEFAULT_TRACKPAD_DRAG_MOVE_TOLERANCE = 160;
     private static final boolean DEFAULT_TRACKPAD_SWAP_AXIS = false;
@@ -217,6 +221,14 @@ public class PreferenceConfiguration {
     private static final boolean DEFAULT_TRACKPAD_BROWSER_NAV_INVERT = false;
     private static final int DEFAULT_TRACKPAD_BROWSER_NAV_THRESHOLD = 90;
     private static final int DEFAULT_TRACKPAD_BROWSER_NAV_COOLDOWN = 450;
+    public static final String META_ACTION_LEFT_WINDOWS = "left_windows";
+    public static final String META_ACTION_RIGHT_WINDOWS = "right_windows";
+    public static final String META_ACTION_ALT = "alt";
+    public static final String META_ACTION_CTRL = "ctrl";
+    public static final String META_ACTION_HANGUL = "hangul";
+    public static final String META_ACTION_DISABLED = "disabled";
+    private static final String DEFAULT_LEFT_META_ACTION = META_ACTION_LEFT_WINDOWS;
+    private static final String DEFAULT_RIGHT_META_ACTION = META_ACTION_RIGHT_WINDOWS;
     private static final boolean DEFAULT_ENABLE_COMMIT_TEXT = false;
     private static final String DEFAULT_ONSCREEN_KEYBOARD_ALIGN_MODE = "center";
     private static final boolean DEFAULT_SHOW_OVERLAY_TOGGLE_BUTTON = false;
@@ -362,6 +374,7 @@ public class PreferenceConfiguration {
     public int trackpadSensitivityY;
     public boolean trackpadDragDropVibration;
     public boolean trackpadLongPressDrag;
+    public boolean trackpadDoubleTapDrag;
     public int trackpadDragDropThreshold;
     public int trackpadDragMoveTolerance;
     public boolean trackpadSwapAxis;
@@ -369,6 +382,8 @@ public class PreferenceConfiguration {
     public boolean trackpadBrowserNavInvert;
     public int trackpadBrowserNavThreshold;
     public int trackpadBrowserNavCooldown;
+    public String leftMetaKeyAction;
+    public String rightMetaKeyAction;
 
     public boolean bindAllUsb;
     public boolean mouseEmulation;
@@ -1018,6 +1033,7 @@ private static int getFramePacingValue(Context context) {
         config.trackpadSensitivityY = prefs.getInt(SEEKBAR_TRACKPAD_SENSITIVITY_Y, DEFAULT_TRACKPAD_SENSITIVITY_Y);
         config.trackpadDragDropVibration = prefs.getBoolean(CHECKBOX_TRACKPAD_DRAG_DROP_VIBRATION, DEFAULT_TRACKPAD_DRAG_DROP_VIBRATION);
         config.trackpadLongPressDrag = prefs.getBoolean(CHECKBOX_TRACKPAD_LONG_PRESS_DRAG, DEFAULT_TRACKPAD_LONG_PRESS_DRAG);
+        config.trackpadDoubleTapDrag = prefs.getBoolean(CHECKBOX_TRACKPAD_DOUBLE_TAP_DRAG, DEFAULT_TRACKPAD_DOUBLE_TAP_DRAG);
         config.trackpadDragDropThreshold = prefs.getInt(SEEKBAR_TRACKPAD_DRAG_DROP_THRESHOLD, DEFAULT_TRACKPAD_DRAG_DROP_THRESHOLD);
         config.trackpadDragMoveTolerance = prefs.getInt(SEEKBAR_TRACKPAD_DRAG_MOVE_TOLERANCE, DEFAULT_TRACKPAD_DRAG_MOVE_TOLERANCE);
         config.trackpadSwapAxis = prefs.getBoolean(CHECKBOX_TRACKPAD_SWAP_AXIS, DEFAULT_TRACKPAD_SWAP_AXIS);
@@ -1025,6 +1041,8 @@ private static int getFramePacingValue(Context context) {
         config.trackpadBrowserNavInvert = prefs.getBoolean(CHECKBOX_TRACKPAD_BROWSER_NAV_INVERT, DEFAULT_TRACKPAD_BROWSER_NAV_INVERT);
         config.trackpadBrowserNavThreshold = prefs.getInt(SEEKBAR_TRACKPAD_BROWSER_NAV_THRESHOLD, DEFAULT_TRACKPAD_BROWSER_NAV_THRESHOLD);
         config.trackpadBrowserNavCooldown = prefs.getInt(SEEKBAR_TRACKPAD_BROWSER_NAV_COOLDOWN, DEFAULT_TRACKPAD_BROWSER_NAV_COOLDOWN);
+        config.leftMetaKeyAction = prefs.getString(META_LEFT_ACTION_PREF_STRING, DEFAULT_LEFT_META_ACTION);
+        config.rightMetaKeyAction = prefs.getString(META_RIGHT_ACTION_PREF_STRING, DEFAULT_RIGHT_META_ACTION);
 
         config.absoluteMouseMode = prefs.getBoolean(ABSOLUTE_MOUSE_MODE_PREF_STRING, DEFAULT_ABSOLUTE_MOUSE_MODE);
         config.enableBatteryReport = prefs.getBoolean(CHECKBOX_ENABLE_BATTERY_REPORT, DEFAULT_GAMEPAD_ENABLE_BATTERY_REPORT);

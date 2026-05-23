@@ -215,6 +215,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private boolean isDragging = false;
     private float lastTouchDownX, lastTouchDownY;
     private final Runnable trackpadLongPressDragRunnable = this::startPendingTrackpadDrag;
+    private long lastTrackpadTapUpTime = 0;
+    private float lastTrackpadTapUpX, lastTrackpadTapUpY;
 
     private long lastAbsTouchUpTime = 0;
     private long lastAbsTouchDownTime = 0;
@@ -2032,16 +2034,21 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     }
 
     private boolean sendMetaKeyDirectly(KeyEvent event, boolean down) {
-        short translated;
+        String action;
 
         if (event.getKeyCode() == KeyEvent.KEYCODE_META_LEFT) {
-            translated = (short)KeyboardTranslator.VK_LWIN;
+            action = prefConfig.leftMetaKeyAction;
         }
         else if (event.getKeyCode() == KeyEvent.KEYCODE_META_RIGHT) {
-            translated = (short)0x5c;
+            action = prefConfig.rightMetaKeyAction;
         }
         else {
             return false;
+        }
+
+        short translated = getMappedMetaKey(action, event.getKeyCode() == KeyEvent.KEYCODE_META_LEFT);
+        if (translated == 0) {
+            return true;
         }
 
         if (!grabbedInput) {
@@ -2057,6 +2064,27 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 (byte)0,
                 keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
         return true;
+    }
+
+    private short getMappedMetaKey(String action, boolean left) {
+        if (PreferenceConfiguration.META_ACTION_DISABLED.equals(action)) {
+            return 0;
+        }
+        else if (PreferenceConfiguration.META_ACTION_ALT.equals(action)) {
+            return (short)KeyboardTranslator.VK_LMENU;
+        }
+        else if (PreferenceConfiguration.META_ACTION_CTRL.equals(action)) {
+            return (short)KeyboardTranslator.VK_LCONTROL;
+        }
+        else if (PreferenceConfiguration.META_ACTION_HANGUL.equals(action)) {
+            return (short)0x15;
+        }
+        else if (PreferenceConfiguration.META_ACTION_RIGHT_WINDOWS.equals(action)) {
+            return (short)0x5c;
+        }
+        else {
+            return (short)(left ? KeyboardTranslator.VK_LWIN : 0x5c);
+        }
     }
 
     @Override
@@ -2320,8 +2348,25 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         return true;
     }
 
+    private boolean isTrackpadDoubleTapDrag(MotionEvent event) {
+        if (!prefConfig.trackpadDoubleTapDrag || lastTrackpadTapUpTime == 0) {
+            return false;
+        }
+
+        long timeSinceLastTap = event.getEventTime() - lastTrackpadTapUpTime;
+        if (timeSinceLastTap < 40 || timeSinceLastTap > 350) {
+            return false;
+        }
+
+        double positionDelta = Math.sqrt(
+                Math.pow(event.getX() - lastTrackpadTapUpX, 2) +
+                        Math.pow(event.getY() - lastTrackpadTapUpY, 2)
+        );
+        return positionDelta <= prefConfig.trackpadDragMoveTolerance;
+    }
+
     private void handlePointerLongPressDrag(MotionEvent event, int buttonState) {
-        if (!prefConfig.trackpadLongPressDrag) {
+        if (!prefConfig.trackpadLongPressDrag && !prefConfig.trackpadDoubleTapDrag) {
             return;
         }
 
@@ -2335,7 +2380,14 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             lastTouchDownY = event.getY();
             synthTouchDownTime = event.getEventTime();
             timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
-            timerHandler.postDelayed(trackpadLongPressDragRunnable, prefConfig.trackpadDragDropThreshold);
+            if (isTrackpadDoubleTapDrag(event)) {
+                pendingDrag = false;
+                isDragging = true;
+                conn.sendMouseButtonDown(MouseButtonPacket.BUTTON_LEFT);
+            }
+            else if (prefConfig.trackpadLongPressDrag) {
+                timerHandler.postDelayed(trackpadLongPressDragRunnable, prefConfig.trackpadDragDropThreshold);
+            }
             return;
         }
 
@@ -2356,9 +2408,16 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
+            boolean wasDragging = isDragging;
             if (isDragging) {
                 isDragging = false;
                 conn.sendMouseButtonUp(MouseButtonPacket.BUTTON_LEFT);
+            }
+            if (action == MotionEvent.ACTION_UP && !wasDragging &&
+                    event.getEventTime() - synthTouchDownTime < 120) {
+                lastTrackpadTapUpTime = event.getEventTime();
+                lastTrackpadTapUpX = event.getX();
+                lastTrackpadTapUpY = event.getY();
             }
             pendingDrag = false;
             synthClickPending = false;
@@ -3059,6 +3118,12 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                                 lastTouchDownY = event.getY();
                                 synthTouchDownTime = event.getEventTime();
                                 timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
+                                if (isTrackpadDoubleTapDrag(event)) {
+                                    pendingDrag = false;
+                                    isDragging = true;
+                                    conn.sendMouseButtonDown(MouseButtonPacket.BUTTON_LEFT);
+                                    return true;
+                                }
                                 if (prefConfig.trackpadLongPressDrag) {
                                     timerHandler.postDelayed(trackpadLongPressDragRunnable, prefConfig.trackpadDragDropThreshold);
                                 }
@@ -3068,6 +3133,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                                 timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
                                 if (synthClickPending) {
                                     long timeDiff = event.getEventTime() - synthTouchDownTime;
+                                    boolean wasDragging = isDragging;
 
                                     if (eventSource == 12290) {
                                         // Special handle for DeX
@@ -3089,6 +3155,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                                     if (isDragging) {
                                         isDragging = false;
                                         conn.sendMouseButtonUp(MouseButtonPacket.BUTTON_LEFT);
+                                    }
+                                    if (!wasDragging && timeDiff < 120) {
+                                        lastTrackpadTapUpTime = event.getEventTime();
+                                        lastTrackpadTapUpX = event.getX();
+                                        lastTrackpadTapUpY = event.getY();
                                     }
                                     pendingDrag = false;
                                     synthClickPending = false;

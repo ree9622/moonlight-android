@@ -440,6 +440,12 @@
             android:summary="@string/summary_trackpad_long_press_drag"
             android:title="@string/title_trackpad_long_press_drag"
             app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="checkbox_trackpad_double_tap_drag"
+            android:summary="@string/summary_trackpad_double_tap_drag"
+            android:title="@string/title_trackpad_double_tap_drag"
+            app:iconSpaceReserved="false" />
         <com.limelight.preferences.SeekBarPreference
             android:defaultValue="250"
             android:key="seekbar_trackpad_drag_drop_threshold"
@@ -506,6 +512,22 @@
             android:key="checkbox_force_qwerty"
             android:summary="@string/summary_checkbox_force_qwerty"
             android:title="@string/title_checkbox_force_qwerty"
+            app:iconSpaceReserved="false" />
+        <ListPreference
+            android:defaultValue="left_windows"
+            android:entries="@array/meta_key_action_names"
+            android:entryValues="@array/meta_key_action_values"
+            android:key="list_left_meta_key_action"
+            android:summary="@string/summary_left_meta_key_action"
+            android:title="@string/title_left_meta_key_action"
+            app:iconSpaceReserved="false" />
+        <ListPreference
+            android:defaultValue="right_windows"
+            android:entries="@array/meta_key_action_names"
+            android:entryValues="@array/meta_key_action_values"
+            android:key="list_right_meta_key_action"
+            android:summary="@string/summary_right_meta_key_action"
+            android:title="@string/title_right_meta_key_action"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"
@@ -1058,6 +1080,19 @@
             android:key="pref_debug_info"
             android:summary="@string/summary_debug_info"
             android:title="@string/title_debug_info"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:key="option_apply_desktop_preset"
+            android:summary="@string/summary_apply_desktop_preset"
+            android:title="@string/title_apply_desktop_preset"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="checkbox_auto_update_check"
+            android:summary="@string/summary_auto_update_check"
+            android:title="@string/title_auto_update_check"
             app:iconSpaceReserved="false" />
 
         <Preference
