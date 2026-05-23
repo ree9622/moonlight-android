@@ -529,6 +529,16 @@
             android:summary="@string/summary_right_meta_key_action"
             android:title="@string/title_right_meta_key_action"
             app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_left_win_key"
+            android:summary="@string/summary_capture_left_win_key"
+            android:title="@string/title_capture_left_win_key"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_reset_left_win_key"
+            android:summary="@string/summary_reset_left_win_key"
+            android:title="@string/title_reset_left_win_key"
+            app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="checkbox_back_as_meta"

@@ -37,6 +37,7 @@ import android.util.Log;
 import android.util.Range;
 import android.view.Display;
 import android.view.DisplayCutout;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,6 +147,14 @@ public class StreamSettings extends AppCompatActivity {
     }
 
     @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (prefsFragment != null && prefsFragment.handleCustomLeftWinKeyCapture(event)) {
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
     // NOTE: This will NOT be called on Android 13+ with android:enableOnBackInvokedCallback="true"
     public void onBackPressed() {
         finish();
@@ -173,6 +182,8 @@ public class StreamSettings extends AppCompatActivity {
         private boolean nativeFramerateShown = false;
 
         private PreferenceConfiguration prevPrefConfig;
+        private AlertDialog customLeftWinCaptureDialog;
+        private boolean waitingForCustomLeftWinKey = false;
 
         public SettingsFragment(PreferenceConfiguration prefCfg) {
             prevPrefConfig = prefCfg;
@@ -876,6 +887,30 @@ public class StreamSettings extends AppCompatActivity {
                 });
             }
 
+            updateCustomLeftWinPreferenceSummary();
+
+            _pref = findPreference("option_capture_left_win_key");
+            if (_pref != null) {
+                _pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(@NonNull Preference preference) {
+                        startCustomLeftWinKeyCapture();
+                        return true;
+                    }
+                });
+            }
+
+            _pref = findPreference("option_reset_left_win_key");
+            if (_pref != null) {
+                _pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(@NonNull Preference preference) {
+                        resetCustomLeftWinKey();
+                        return true;
+                    }
+                });
+            }
+
             _pref = findPreference("option_software_release");
             if (_pref != null) {
                 _pref.setSummary(getString(R.string.summary_software_update, BuildConfig.BACKSWIPE_RELEASE_TAG));
@@ -1006,6 +1041,76 @@ public class StreamSettings extends AppCompatActivity {
             prefs.edit().putString(prefKey, newVal).apply();
 
             reloadSettings();
+        }
+
+        public boolean handleCustomLeftWinKeyCapture(KeyEvent event) {
+            if (!waitingForCustomLeftWinKey) {
+                return false;
+            }
+
+            if (event.getAction() != KeyEvent.ACTION_DOWN || event.getRepeatCount() > 0) {
+                return true;
+            }
+
+            if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                finishCustomLeftWinKeyCapture(false);
+                return true;
+            }
+
+            getPrefs().edit()
+                    .putInt(PreferenceConfiguration.CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING, event.getKeyCode())
+                    .putInt(PreferenceConfiguration.CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING, event.getScanCode())
+                    .apply();
+            finishCustomLeftWinKeyCapture(true);
+            updateCustomLeftWinPreferenceSummary();
+            return true;
+        }
+
+        private void startCustomLeftWinKeyCapture() {
+            waitingForCustomLeftWinKey = true;
+            customLeftWinCaptureDialog = new AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_capture_left_win_key_title)
+                    .setMessage(R.string.dialog_capture_left_win_key_message)
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> finishCustomLeftWinKeyCapture(false))
+                    .setOnCancelListener(dialog -> finishCustomLeftWinKeyCapture(false))
+                    .show();
+        }
+
+        private void finishCustomLeftWinKeyCapture(boolean saved) {
+            waitingForCustomLeftWinKey = false;
+            if (customLeftWinCaptureDialog != null) {
+                customLeftWinCaptureDialog.dismiss();
+                customLeftWinCaptureDialog = null;
+            }
+            if (saved) {
+                Toast.makeText(getActivity(), getString(R.string.toast_left_win_key_saved), Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        private void resetCustomLeftWinKey() {
+            getPrefs().edit()
+                    .remove(PreferenceConfiguration.CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING)
+                    .remove(PreferenceConfiguration.CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING)
+                    .apply();
+            updateCustomLeftWinPreferenceSummary();
+            Toast.makeText(getActivity(), getString(R.string.toast_left_win_key_reset), Toast.LENGTH_SHORT).show();
+        }
+
+        private void updateCustomLeftWinPreferenceSummary() {
+            Preference capturePref = findPreference("option_capture_left_win_key");
+            if (capturePref == null) {
+                return;
+            }
+
+            int keyCode = getPrefs().getInt(PreferenceConfiguration.CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING, 0);
+            int scanCode = getPrefs().getInt(PreferenceConfiguration.CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING, 0);
+            if (keyCode == 0 && scanCode == 0) {
+                capturePref.setSummary(getString(R.string.summary_capture_left_win_key));
+            }
+            else {
+                capturePref.setSummary(getString(R.string.summary_capture_left_win_key_current,
+                        KeyEvent.keyCodeToString(keyCode), scanCode));
+            }
         }
 
         private void applyRemoteDesktopPreset() {

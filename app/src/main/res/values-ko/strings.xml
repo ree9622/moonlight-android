@@ -413,6 +413,15 @@
     <string name="summary_left_meta_key_action">왼쪽 Command 또는 Meta 키를 Windows PC에 어떤 키로 보낼지 선택합니다.</string>
     <string name="title_right_meta_key_action">오른쪽 Command/Meta 키</string>
     <string name="summary_right_meta_key_action">오른쪽 Command 또는 Meta 키를 Windows PC에 어떤 키로 보낼지 선택합니다.</string>
+    <string name="title_capture_left_win_key">왼쪽 Windows 키로 사용할 키 학습</string>
+    <string name="summary_capture_left_win_key">누른 다음, 왼쪽 Windows 키처럼 보낼 실제 키보드 키를 누릅니다.</string>
+    <string name="summary_capture_left_win_key_current">현재: %1$s, scan=%2$d. 다른 키로 바꾸려면 다시 누릅니다.</string>
+    <string name="title_reset_left_win_key">학습한 왼쪽 Windows 키 초기화</string>
+    <string name="summary_reset_left_win_key">학습한 하드웨어 키를 지우고 기본 Command/Meta 매핑만 사용합니다.</string>
+    <string name="dialog_capture_left_win_key_title">키를 누르세요</string>
+    <string name="dialog_capture_left_win_key_message">왼쪽 Windows 키로 보낼 실제 키보드 키를 누르세요. 취소하려면 뒤로가기를 누릅니다.</string>
+    <string name="toast_left_win_key_saved">왼쪽 Windows 키 매핑을 저장했습니다.</string>
+    <string name="toast_left_win_key_reset">학습한 왼쪽 Windows 키 매핑을 초기화했습니다.</string>
     <string name="meta_key_action_left_windows">왼쪽 Windows 키</string>
     <string name="meta_key_action_right_windows">오른쪽 Windows 키</string>
     <string name="meta_key_action_alt">Alt 키</string>

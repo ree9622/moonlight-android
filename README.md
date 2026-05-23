@@ -54,6 +54,7 @@ Artemis BackSwipe는 [Artemis Android](https://github.com/ClassicOldSong/moonlig
   - 디버그 정보 화면에서 실제 `KeyEvent`/`MotionEvent` 로그 확인 가능
   - 터치패드 두 번 탭 후 드래그 지원
   - 좌/우 Command 또는 Meta 키를 Windows/Alt/Ctrl/한영/사용 안 함으로 매핑
+  - 원하는 물리 키를 눌러 왼쪽 Windows 키로 학습하고 초기화 가능
   - 원격 데스크톱 프리셋으로 Fold + 외장 키보드 추천 설정을 한 번에 적용
   - 설정 화면을 열 때 하루 한 번 업데이트 자동 확인 가능
 
@@ -61,8 +62,8 @@ Artemis BackSwipe는 [Artemis Android](https://github.com/ClassicOldSong/moonlig
 
 최신 개인 빌드 릴리스:
 
-- [v20.2.6-backswipe-ko-6](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-6)
-- [APK 직접 다운로드](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-6/artemis-backswipe-desktop-tools-arm64-debug.apk)
+- [v20.2.6-backswipe-ko-7](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-7)
+- [APK 직접 다운로드](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-7/artemis-backswipe-learn-left-win-arm64-debug.apk)
 
 Galaxy Z Fold 계열은 일반적으로 `arm64-v8a` APK를 사용하면 됩니다.
 
@@ -124,7 +125,7 @@ This fork exists to:
 
 Key changes:
 
-- Full Korean string coverage: 696/696 default strings translated.
+- Full Korean string coverage: 705/705 default strings translated.
 - Horizontal external trackpad swipes can be converted to browser back/forward via `Alt+Left` and `Alt+Right`.
 - Long-press drag handling is improved for window resizing, sliders, and other UI handles.
 - Physical Command/Meta keys are forwarded directly as Windows keys.
@@ -132,10 +133,11 @@ Key changes:
 - In-app update checking reads the latest GitHub release from the personal fork and opens the APK or release page.
 - The debug screen now shows raw key and pointer events for diagnosing device-specific keyboards and trackpads.
 - Trackpad double-tap-and-hold drag, Command/Meta key mapping, a remote desktop preset, and optional daily update checks were added.
+- A physical keyboard key can be learned and reset as the left Windows key.
 
 Latest release:
 
-- [v20.2.6-backswipe-ko-6](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-6)
-- [Direct APK download](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-6/artemis-backswipe-desktop-tools-arm64-debug.apk)
+- [v20.2.6-backswipe-ko-7](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-7)
+- [Direct APK download](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-7/artemis-backswipe-learn-left-win-arm64-debug.apk)
 
 If a device or Android build does not deliver a key or motion event to the app, it cannot be fixed purely at the app layer. In that case, a diagnostic build that displays raw `KeyEvent` and `MotionEvent` data is needed.

@@ -2066,6 +2066,34 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         return true;
     }
 
+    private boolean sendCustomLeftWindowsKey(KeyEvent event, boolean down) {
+        if (prefConfig.customLeftWinKeyCode == 0 && prefConfig.customLeftWinScanCode == 0) {
+            return false;
+        }
+
+        boolean keyCodeMatches = prefConfig.customLeftWinKeyCode != 0 &&
+                event.getKeyCode() == prefConfig.customLeftWinKeyCode;
+        boolean scanCodeMatches = prefConfig.customLeftWinScanCode != 0 &&
+                event.getScanCode() == prefConfig.customLeftWinScanCode;
+        if (!keyCodeMatches && !scanCodeMatches) {
+            return false;
+        }
+
+        if (!grabbedInput) {
+            return false;
+        }
+
+        if (down && event.getRepeatCount() > 0) {
+            return true;
+        }
+
+        conn.sendKeyboardInput((short)KeyboardTranslator.VK_LWIN,
+                down ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP,
+                (byte)0,
+                keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
+        return true;
+    }
+
     private short getMappedMetaKey(String action, boolean left) {
         if (PreferenceConfiguration.META_ACTION_DISABLED.equals(action)) {
             return 0;
@@ -2102,6 +2130,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         int deviceId = event.getDeviceId();
         if (prefConfig.ignoreSynthEvents && deviceId <= 0) {
             return false;
+        }
+
+        if (sendCustomLeftWindowsKey(event, true)) {
+            return true;
         }
 
         if (sendMetaKeyDirectly(event, true)) {
@@ -2197,6 +2229,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         int deviceId = event.getDeviceId();
         if (prefConfig.ignoreSynthEvents && deviceId <= 0) {
             return false;
+        }
+
+        if (sendCustomLeftWindowsKey(event, false)) {
+            return true;
         }
 
         if (sendMetaKeyDirectly(event, false)) {

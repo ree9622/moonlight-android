@@ -494,6 +494,15 @@
     <string name="summary_left_meta_key_action">Choose what the left Command or Meta key sends to the Windows PC.</string>
     <string name="title_right_meta_key_action">Right Command/Meta Key</string>
     <string name="summary_right_meta_key_action">Choose what the right Command or Meta key sends to the Windows PC.</string>
+    <string name="title_capture_left_win_key">Learn Left Windows Key</string>
+    <string name="summary_capture_left_win_key">Press this, then press the physical keyboard key that should behave as the left Windows key.</string>
+    <string name="summary_capture_left_win_key_current">Current: %1$s, scan=%2$d. Press to learn a different key.</string>
+    <string name="title_reset_left_win_key">Reset Learned Left Windows Key</string>
+    <string name="summary_reset_left_win_key">Clear the learned hardware key and use the normal Command/Meta mapping only.</string>
+    <string name="dialog_capture_left_win_key_title">Press a key</string>
+    <string name="dialog_capture_left_win_key_message">Press the physical keyboard key you want to send as the left Windows key. Press Back to cancel.</string>
+    <string name="toast_left_win_key_saved">Left Windows key mapping saved.</string>
+    <string name="toast_left_win_key_reset">Learned left Windows key mapping reset.</string>
     <string name="meta_key_action_left_windows">Left Windows Key</string>
     <string name="meta_key_action_right_windows">Right Windows Key</string>
     <string name="meta_key_action_alt">Alt Key</string>

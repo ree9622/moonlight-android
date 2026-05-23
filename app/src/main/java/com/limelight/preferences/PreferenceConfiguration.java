@@ -144,6 +144,8 @@ public class PreferenceConfiguration {
     private static final String SEEKBAR_TRACKPAD_BROWSER_NAV_COOLDOWN = "seekbar_trackpad_browser_nav_cooldown";
     public static final String META_LEFT_ACTION_PREF_STRING = "list_left_meta_key_action";
     public static final String META_RIGHT_ACTION_PREF_STRING = "list_right_meta_key_action";
+    public static final String CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING = "custom_left_win_keycode";
+    public static final String CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING = "custom_left_win_scancode";
 
     private static final String CHECKBOX_ENABLE_COMMIT_TEXT = "checkbox_enable_commit_text";
 
@@ -229,6 +231,8 @@ public class PreferenceConfiguration {
     public static final String META_ACTION_DISABLED = "disabled";
     private static final String DEFAULT_LEFT_META_ACTION = META_ACTION_LEFT_WINDOWS;
     private static final String DEFAULT_RIGHT_META_ACTION = META_ACTION_RIGHT_WINDOWS;
+    private static final int DEFAULT_CUSTOM_LEFT_WIN_KEYCODE = 0;
+    private static final int DEFAULT_CUSTOM_LEFT_WIN_SCANCODE = 0;
     private static final boolean DEFAULT_ENABLE_COMMIT_TEXT = false;
     private static final String DEFAULT_ONSCREEN_KEYBOARD_ALIGN_MODE = "center";
     private static final boolean DEFAULT_SHOW_OVERLAY_TOGGLE_BUTTON = false;
@@ -384,6 +388,8 @@ public class PreferenceConfiguration {
     public int trackpadBrowserNavCooldown;
     public String leftMetaKeyAction;
     public String rightMetaKeyAction;
+    public int customLeftWinKeyCode;
+    public int customLeftWinScanCode;
 
     public boolean bindAllUsb;
     public boolean mouseEmulation;
@@ -1043,6 +1049,8 @@ private static int getFramePacingValue(Context context) {
         config.trackpadBrowserNavCooldown = prefs.getInt(SEEKBAR_TRACKPAD_BROWSER_NAV_COOLDOWN, DEFAULT_TRACKPAD_BROWSER_NAV_COOLDOWN);
         config.leftMetaKeyAction = prefs.getString(META_LEFT_ACTION_PREF_STRING, DEFAULT_LEFT_META_ACTION);
         config.rightMetaKeyAction = prefs.getString(META_RIGHT_ACTION_PREF_STRING, DEFAULT_RIGHT_META_ACTION);
+        config.customLeftWinKeyCode = prefs.getInt(CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING, DEFAULT_CUSTOM_LEFT_WIN_KEYCODE);
+        config.customLeftWinScanCode = prefs.getInt(CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING, DEFAULT_CUSTOM_LEFT_WIN_SCANCODE);
 
         config.absoluteMouseMode = prefs.getBoolean(ABSOLUTE_MOUSE_MODE_PREF_STRING, DEFAULT_ABSOLUTE_MOUSE_MODE);
         config.enableBatteryReport = prefs.getBoolean(CHECKBOX_ENABLE_BATTERY_REPORT, DEFAULT_GAMEPAD_ENABLE_BATTERY_REPORT);
