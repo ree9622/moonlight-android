@@ -45,6 +45,7 @@ import com.limelight.ui.GameGestures;
 import com.limelight.ui.StreamContainer;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.ExternalDisplayControlActivity;
+import com.limelight.utils.KeyMapper;
 import com.limelight.utils.MouseModeOption;
 import com.limelight.utils.PanZoomHandler;
 import com.limelight.utils.PerformanceDataTracker;
@@ -2037,36 +2038,18 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     }
 
     private boolean sendMetaKeyDirectly(KeyEvent event, boolean down) {
-        String action;
-
-        if (event.getKeyCode() == KeyEvent.KEYCODE_META_LEFT) {
-            action = prefConfig.leftMetaKeyAction;
-        }
-        else if (event.getKeyCode() == KeyEvent.KEYCODE_META_RIGHT) {
-            action = prefConfig.rightMetaKeyAction;
-        }
-        else {
+        if (!isPhysicalMetaKey(event)) {
             return false;
         }
 
-        short translated = getMappedMetaKey(action, event.getKeyCode() == KeyEvent.KEYCODE_META_LEFT);
+        boolean left = isLeftMetaKey(event);
+        String action = left ? prefConfig.leftMetaKeyAction : prefConfig.rightMetaKeyAction;
+        short translated = getMappedMetaKey(action, left);
         if (translated == 0) {
             return true;
         }
 
-        if (!grabbedInput) {
-            return false;
-        }
-
-        if (down && event.getRepeatCount() > 0) {
-            return true;
-        }
-
-        conn.sendKeyboardInput(translated,
-                down ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP,
-                (byte)0,
-                keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
-        return true;
+        return sendSyntheticMappedKey(event, translated, down);
     }
 
     private boolean sendCustomLearnedKey(KeyEvent event, boolean down) {
@@ -2075,8 +2058,20 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             return false;
         }
 
+        return sendSyntheticMappedKey(event, translated, down);
+    }
+
+    private boolean sendSyntheticMappedKey(KeyEvent event, short translated, boolean down) {
         if (!grabbedInput) {
             return false;
+        }
+
+        if (isImeToggleKey(translated)) {
+            if (down && event.getRepeatCount() == 0) {
+                conn.sendKeyboardInput(translated, KeyboardPacket.KEY_DOWN, (byte)0, (byte)0);
+                conn.sendKeyboardInput(translated, KeyboardPacket.KEY_UP, (byte)0, (byte)0);
+            }
+            return true;
         }
 
         if (down && event.getRepeatCount() > 0) {
@@ -2086,8 +2081,31 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         conn.sendKeyboardInput(translated,
                 down ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP,
                 (byte)0,
-                keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
+                (byte)0);
         return true;
+    }
+
+    private boolean isPhysicalMetaKey(KeyEvent event) {
+        return event.getKeyCode() == KeyEvent.KEYCODE_META_LEFT ||
+                event.getKeyCode() == KeyEvent.KEYCODE_META_RIGHT ||
+                event.getScanCode() == KeyMapper.KEY_LEFTMETA ||
+                event.getScanCode() == KeyMapper.KEY_RIGHTMETA;
+    }
+
+    private boolean isLeftMetaKey(KeyEvent event) {
+        if (event.getScanCode() == KeyMapper.KEY_LEFTMETA) {
+            return true;
+        }
+        else if (event.getScanCode() == KeyMapper.KEY_RIGHTMETA) {
+            return false;
+        }
+        else {
+            return event.getKeyCode() != KeyEvent.KEYCODE_META_RIGHT;
+        }
+    }
+
+    private boolean isImeToggleKey(short translated) {
+        return translated == VK_HANGUL || translated == VK_HANJA;
     }
 
     private short getCustomLearnedKey(KeyEvent event) {

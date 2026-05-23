@@ -1118,6 +1118,7 @@ public class StreamSettings extends AppCompatActivity {
             customKeyCaptureDialog = new AlertDialog.Builder(requireContext())
                     .setTitle(R.string.dialog_capture_left_win_key_title)
                     .setMessage(getString(R.string.dialog_capture_custom_key_message, getString(target.titleResId)))
+                    .setOnKeyListener((dialog, keyCode, event) -> handleCustomKeyCapture(event))
                     .setNegativeButton(android.R.string.cancel, (dialog, which) -> finishCustomKeyCapture(null, false))
                     .setOnCancelListener(dialog -> finishCustomKeyCapture(null, false))
                     .show();

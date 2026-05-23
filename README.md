@@ -63,8 +63,8 @@ Artemis BackSwipe는 [Artemis Android](https://github.com/ClassicOldSong/moonlig
 
 최신 개인 빌드 릴리스:
 
-- [v20.2.6-backswipe-ko-8](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-8)
-- [APK 직접 다운로드](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-8/artemis-backswipe-key-learn-logshare-arm64-debug.apk)
+- [v20.2.6-backswipe-ko-9](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-9)
+- [APK 직접 다운로드](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-9/artemis-backswipe-key-learn-fix-arm64-debug.apk)
 
 Galaxy Z Fold 계열은 일반적으로 `arm64-v8a` APK를 사용하면 됩니다.
 
@@ -139,7 +139,7 @@ Key changes:
 
 Latest release:
 
-- [v20.2.6-backswipe-ko-8](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-8)
-- [Direct APK download](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-8/artemis-backswipe-key-learn-logshare-arm64-debug.apk)
+- [v20.2.6-backswipe-ko-9](https://github.com/ree9622/moonlight-android/releases/tag/v20.2.6-backswipe-ko-9)
+- [Direct APK download](https://github.com/ree9622/moonlight-android/releases/download/v20.2.6-backswipe-ko-9/artemis-backswipe-key-learn-fix-arm64-debug.apk)
 
 If a device or Android build does not deliver a key or motion event to the app, it cannot be fixed purely at the app layer. In that case, a diagnostic build that displays raw `KeyEvent` and `MotionEvent` data is needed.
