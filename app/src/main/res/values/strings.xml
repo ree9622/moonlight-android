@@ -503,6 +503,24 @@
     <string name="dialog_capture_left_win_key_message">Press the physical keyboard key you want to send as the left Windows key. Press Back to cancel.</string>
     <string name="toast_left_win_key_saved">Left Windows key mapping saved.</string>
     <string name="toast_left_win_key_reset">Learned left Windows key mapping reset.</string>
+    <string name="title_capture_right_win_key">Learn Right Windows Key</string>
+    <string name="title_capture_alt_key">Learn Alt Key</string>
+    <string name="title_capture_ctrl_key">Learn Ctrl Key</string>
+    <string name="title_capture_hangul_key">Learn Korean/English Key</string>
+    <string name="title_capture_hanja_key">Learn Hanja Key</string>
+    <string name="summary_capture_custom_key">Press this, then press the physical keyboard key to learn.</string>
+    <string name="summary_capture_custom_key_current">Current: %1$s, scan=%2$d. Press to learn a different key.</string>
+    <string name="title_reset_custom_keys">Reset Learned Keys</string>
+    <string name="summary_reset_custom_keys">Clear all learned hardware key mappings.</string>
+    <string name="dialog_capture_custom_key_message">Press the physical keyboard key you want to send as %1$s. Press Back to cancel.</string>
+    <string name="toast_custom_key_saved">%1$s mapping saved.</string>
+    <string name="toast_custom_keys_reset">Learned key mappings reset.</string>
+    <string name="learned_key_target_left_windows">Left Windows Key</string>
+    <string name="learned_key_target_right_windows">Right Windows Key</string>
+    <string name="learned_key_target_alt">Alt Key</string>
+    <string name="learned_key_target_ctrl">Ctrl Key</string>
+    <string name="learned_key_target_hangul">Korean/English Toggle</string>
+    <string name="learned_key_target_hanja">Hanja Key</string>
     <string name="meta_key_action_left_windows">Left Windows Key</string>
     <string name="meta_key_action_right_windows">Right Windows Key</string>
     <string name="meta_key_action_alt">Alt Key</string>
@@ -662,6 +680,10 @@
     <string name="debug_info_refresh_gamepad_list">Refresh gamepad list</string>
     <string name="debug_info_test_gamepad_rumble">Test gamepad rumble</string>
     <string name="debug_input_clear_log">Clear input event log</string>
+    <string name="debug_input_share_log">Share input event log</string>
+    <string name="debug_input_share_title">Share input diagnostics</string>
+    <string name="debug_input_share_failed">Could not share input diagnostics.</string>
+    <string name="debug_input_log_empty">No input events captured yet.</string>
     <string name="debug_input_key_event">KEY %1$s %2$s scan=%3$d meta=%4$d repeat=%5$d dev=%6$d %7$s</string>
     <string name="debug_input_motion_event">MOTION %1$s src=%2$s buttons=%3$d tool=%4$d pointers=%5$d x=%6$.1f y=%7$.1f h=%8$.2f v=%9$.2f relX=%10$.2f relY=%11$.2f dev=%12$d %13$s</string>
     <string name="pref_enter_value_0_9999">Please enter a value between 0 and 9999.</string>

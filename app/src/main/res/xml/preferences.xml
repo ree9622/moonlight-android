@@ -531,13 +531,38 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="option_capture_left_win_key"
-            android:summary="@string/summary_capture_left_win_key"
+            android:summary="@string/summary_capture_custom_key"
             android:title="@string/title_capture_left_win_key"
             app:iconSpaceReserved="false" />
         <Preference
-            android:key="option_reset_left_win_key"
-            android:summary="@string/summary_reset_left_win_key"
-            android:title="@string/title_reset_left_win_key"
+            android:key="option_capture_right_win_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_right_win_key"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_alt_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_alt_key"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_ctrl_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_ctrl_key"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_hangul_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_hangul_key"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_capture_hanja_key"
+            android:summary="@string/summary_capture_custom_key"
+            android:title="@string/title_capture_hanja_key"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="option_reset_custom_keys"
+            android:summary="@string/summary_reset_custom_keys"
+            android:title="@string/title_reset_custom_keys"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"

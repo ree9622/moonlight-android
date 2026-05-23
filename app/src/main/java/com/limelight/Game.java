@@ -166,6 +166,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private static final int FOUR_FINGER_TAP_THRESHOLD = 300;
     private static final int FIVE_FINGER_TAP_THRESHOLD = 300;
     private static final float BROWSER_NAV_HSCROLL_DOMINANCE = 1.25f;
+    private static final short VK_RWIN = 0x5c;
+    private static final short VK_HANGUL = 0x15;
+    private static final short VK_HANJA = 0x19;
 
     private Handler timerHandler;
 
@@ -2066,16 +2069,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         return true;
     }
 
-    private boolean sendCustomLeftWindowsKey(KeyEvent event, boolean down) {
-        if (prefConfig.customLeftWinKeyCode == 0 && prefConfig.customLeftWinScanCode == 0) {
-            return false;
-        }
-
-        boolean keyCodeMatches = prefConfig.customLeftWinKeyCode != 0 &&
-                event.getKeyCode() == prefConfig.customLeftWinKeyCode;
-        boolean scanCodeMatches = prefConfig.customLeftWinScanCode != 0 &&
-                event.getScanCode() == prefConfig.customLeftWinScanCode;
-        if (!keyCodeMatches && !scanCodeMatches) {
+    private boolean sendCustomLearnedKey(KeyEvent event, boolean down) {
+        short translated = getCustomLearnedKey(event);
+        if (translated == 0) {
             return false;
         }
 
@@ -2087,11 +2083,41 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             return true;
         }
 
-        conn.sendKeyboardInput((short)KeyboardTranslator.VK_LWIN,
+        conn.sendKeyboardInput(translated,
                 down ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP,
                 (byte)0,
                 keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
         return true;
+    }
+
+    private short getCustomLearnedKey(KeyEvent event) {
+        if (matchesCustomLearnedKey(event, prefConfig.customLeftWinKeyCode, prefConfig.customLeftWinScanCode)) {
+            return (short)KeyboardTranslator.VK_LWIN;
+        }
+        else if (matchesCustomLearnedKey(event, prefConfig.customRightWinKeyCode, prefConfig.customRightWinScanCode)) {
+            return VK_RWIN;
+        }
+        else if (matchesCustomLearnedKey(event, prefConfig.customAltKeyCode, prefConfig.customAltScanCode)) {
+            return (short)KeyboardTranslator.VK_LMENU;
+        }
+        else if (matchesCustomLearnedKey(event, prefConfig.customCtrlKeyCode, prefConfig.customCtrlScanCode)) {
+            return (short)KeyboardTranslator.VK_LCONTROL;
+        }
+        else if (matchesCustomLearnedKey(event, prefConfig.customHangulKeyCode, prefConfig.customHangulScanCode)) {
+            return VK_HANGUL;
+        }
+        else if (matchesCustomLearnedKey(event, prefConfig.customHanjaKeyCode, prefConfig.customHanjaScanCode)) {
+            return VK_HANJA;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    private boolean matchesCustomLearnedKey(KeyEvent event, int keyCode, int scanCode) {
+        boolean keyCodeMatches = keyCode != 0 && event.getKeyCode() == keyCode;
+        boolean scanCodeMatches = scanCode != 0 && event.getScanCode() == scanCode;
+        return keyCodeMatches || scanCodeMatches;
     }
 
     private short getMappedMetaKey(String action, boolean left) {
@@ -2105,10 +2131,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             return (short)KeyboardTranslator.VK_LCONTROL;
         }
         else if (PreferenceConfiguration.META_ACTION_HANGUL.equals(action)) {
-            return (short)0x15;
+            return VK_HANGUL;
         }
         else if (PreferenceConfiguration.META_ACTION_RIGHT_WINDOWS.equals(action)) {
-            return (short)0x5c;
+            return VK_RWIN;
         }
         else {
             return (short)(left ? KeyboardTranslator.VK_LWIN : 0x5c);
@@ -2132,7 +2158,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             return false;
         }
 
-        if (sendCustomLeftWindowsKey(event, true)) {
+        if (sendCustomLearnedKey(event, true)) {
             return true;
         }
 
@@ -2231,7 +2257,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             return false;
         }
 
-        if (sendCustomLeftWindowsKey(event, false)) {
+        if (sendCustomLearnedKey(event, false)) {
             return true;
         }
 

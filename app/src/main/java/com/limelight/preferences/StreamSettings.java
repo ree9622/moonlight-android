@@ -148,7 +148,7 @@ public class StreamSettings extends AppCompatActivity {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (prefsFragment != null && prefsFragment.handleCustomLeftWinKeyCapture(event)) {
+        if (prefsFragment != null && prefsFragment.handleCustomKeyCapture(event)) {
             return true;
         }
         return super.dispatchKeyEvent(event);
@@ -182,8 +182,50 @@ public class StreamSettings extends AppCompatActivity {
         private boolean nativeFramerateShown = false;
 
         private PreferenceConfiguration prevPrefConfig;
-        private AlertDialog customLeftWinCaptureDialog;
-        private boolean waitingForCustomLeftWinKey = false;
+        private AlertDialog customKeyCaptureDialog;
+        private CustomKeyCaptureTarget waitingForCustomKeyTarget;
+
+        private static final CustomKeyCaptureTarget[] CUSTOM_KEY_CAPTURE_TARGETS = new CustomKeyCaptureTarget[] {
+                new CustomKeyCaptureTarget("option_capture_left_win_key",
+                        PreferenceConfiguration.CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING,
+                        PreferenceConfiguration.CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING,
+                        R.string.learned_key_target_left_windows),
+                new CustomKeyCaptureTarget("option_capture_right_win_key",
+                        PreferenceConfiguration.CUSTOM_RIGHT_WIN_KEYCODE_PREF_STRING,
+                        PreferenceConfiguration.CUSTOM_RIGHT_WIN_SCANCODE_PREF_STRING,
+                        R.string.learned_key_target_right_windows),
+                new CustomKeyCaptureTarget("option_capture_alt_key",
+                        PreferenceConfiguration.CUSTOM_ALT_KEYCODE_PREF_STRING,
+                        PreferenceConfiguration.CUSTOM_ALT_SCANCODE_PREF_STRING,
+                        R.string.learned_key_target_alt),
+                new CustomKeyCaptureTarget("option_capture_ctrl_key",
+                        PreferenceConfiguration.CUSTOM_CTRL_KEYCODE_PREF_STRING,
+                        PreferenceConfiguration.CUSTOM_CTRL_SCANCODE_PREF_STRING,
+                        R.string.learned_key_target_ctrl),
+                new CustomKeyCaptureTarget("option_capture_hangul_key",
+                        PreferenceConfiguration.CUSTOM_HANGUL_KEYCODE_PREF_STRING,
+                        PreferenceConfiguration.CUSTOM_HANGUL_SCANCODE_PREF_STRING,
+                        R.string.learned_key_target_hangul),
+                new CustomKeyCaptureTarget("option_capture_hanja_key",
+                        PreferenceConfiguration.CUSTOM_HANJA_KEYCODE_PREF_STRING,
+                        PreferenceConfiguration.CUSTOM_HANJA_SCANCODE_PREF_STRING,
+                        R.string.learned_key_target_hanja),
+        };
+
+        private static class CustomKeyCaptureTarget {
+            final String preferenceKey;
+            final String keyCodePrefKey;
+            final String scanCodePrefKey;
+            final int titleResId;
+
+            CustomKeyCaptureTarget(String preferenceKey, String keyCodePrefKey,
+                                   String scanCodePrefKey, int titleResId) {
+                this.preferenceKey = preferenceKey;
+                this.keyCodePrefKey = keyCodePrefKey;
+                this.scanCodePrefKey = scanCodePrefKey;
+                this.titleResId = titleResId;
+            }
+        }
 
         public SettingsFragment(PreferenceConfiguration prefCfg) {
             prevPrefConfig = prefCfg;
@@ -887,25 +929,28 @@ public class StreamSettings extends AppCompatActivity {
                 });
             }
 
-            updateCustomLeftWinPreferenceSummary();
+            updateCustomKeyPreferenceSummaries();
 
-            _pref = findPreference("option_capture_left_win_key");
-            if (_pref != null) {
-                _pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(@NonNull Preference preference) {
-                        startCustomLeftWinKeyCapture();
-                        return true;
-                    }
-                });
+            for (CustomKeyCaptureTarget target : CUSTOM_KEY_CAPTURE_TARGETS) {
+                final CustomKeyCaptureTarget captureTarget = target;
+                _pref = findPreference(captureTarget.preferenceKey);
+                if (_pref != null) {
+                    _pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                        @Override
+                        public boolean onPreferenceClick(@NonNull Preference preference) {
+                            startCustomKeyCapture(captureTarget);
+                            return true;
+                        }
+                    });
+                }
             }
 
-            _pref = findPreference("option_reset_left_win_key");
+            _pref = findPreference("option_reset_custom_keys");
             if (_pref != null) {
                 _pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(@NonNull Preference preference) {
-                        resetCustomLeftWinKey();
+                        resetCustomKeyMappings();
                         return true;
                     }
                 });
@@ -1043,8 +1088,8 @@ public class StreamSettings extends AppCompatActivity {
             reloadSettings();
         }
 
-        public boolean handleCustomLeftWinKeyCapture(KeyEvent event) {
-            if (!waitingForCustomLeftWinKey) {
+        public boolean handleCustomKeyCapture(KeyEvent event) {
+            if (waitingForCustomKeyTarget == null) {
                 return false;
             }
 
@@ -1053,63 +1098,72 @@ public class StreamSettings extends AppCompatActivity {
             }
 
             if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-                finishCustomLeftWinKeyCapture(false);
+                finishCustomKeyCapture(null, false);
                 return true;
             }
 
+            CustomKeyCaptureTarget target = waitingForCustomKeyTarget;
             getPrefs().edit()
-                    .putInt(PreferenceConfiguration.CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING, event.getKeyCode())
-                    .putInt(PreferenceConfiguration.CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING, event.getScanCode())
+                    .putInt(target.keyCodePrefKey, event.getKeyCode())
+                    .putInt(target.scanCodePrefKey, event.getScanCode())
                     .apply();
-            finishCustomLeftWinKeyCapture(true);
-            updateCustomLeftWinPreferenceSummary();
+            finishCustomKeyCapture(target, true);
+            updateCustomKeyPreferenceSummaries();
             return true;
         }
 
-        private void startCustomLeftWinKeyCapture() {
-            waitingForCustomLeftWinKey = true;
-            customLeftWinCaptureDialog = new AlertDialog.Builder(requireContext())
+        private void startCustomKeyCapture(CustomKeyCaptureTarget target) {
+            finishCustomKeyCapture(null, false);
+            waitingForCustomKeyTarget = target;
+            customKeyCaptureDialog = new AlertDialog.Builder(requireContext())
                     .setTitle(R.string.dialog_capture_left_win_key_title)
-                    .setMessage(R.string.dialog_capture_left_win_key_message)
-                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> finishCustomLeftWinKeyCapture(false))
-                    .setOnCancelListener(dialog -> finishCustomLeftWinKeyCapture(false))
+                    .setMessage(getString(R.string.dialog_capture_custom_key_message, getString(target.titleResId)))
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> finishCustomKeyCapture(null, false))
+                    .setOnCancelListener(dialog -> finishCustomKeyCapture(null, false))
                     .show();
         }
 
-        private void finishCustomLeftWinKeyCapture(boolean saved) {
-            waitingForCustomLeftWinKey = false;
-            if (customLeftWinCaptureDialog != null) {
-                customLeftWinCaptureDialog.dismiss();
-                customLeftWinCaptureDialog = null;
+        private void finishCustomKeyCapture(CustomKeyCaptureTarget target, boolean saved) {
+            waitingForCustomKeyTarget = null;
+            if (customKeyCaptureDialog != null) {
+                customKeyCaptureDialog.dismiss();
+                customKeyCaptureDialog = null;
             }
-            if (saved) {
-                Toast.makeText(getActivity(), getString(R.string.toast_left_win_key_saved), Toast.LENGTH_SHORT).show();
+            if (saved && target != null) {
+                Toast.makeText(getActivity(),
+                        getString(R.string.toast_custom_key_saved, getString(target.titleResId)),
+                        Toast.LENGTH_SHORT).show();
             }
         }
 
-        private void resetCustomLeftWinKey() {
-            getPrefs().edit()
-                    .remove(PreferenceConfiguration.CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING)
-                    .remove(PreferenceConfiguration.CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING)
-                    .apply();
-            updateCustomLeftWinPreferenceSummary();
-            Toast.makeText(getActivity(), getString(R.string.toast_left_win_key_reset), Toast.LENGTH_SHORT).show();
+        private void resetCustomKeyMappings() {
+            SharedPreferences.Editor editor = getPrefs().edit();
+            for (CustomKeyCaptureTarget target : CUSTOM_KEY_CAPTURE_TARGETS) {
+                editor.remove(target.keyCodePrefKey);
+                editor.remove(target.scanCodePrefKey);
+            }
+            editor.apply();
+            updateCustomKeyPreferenceSummaries();
+            Toast.makeText(getActivity(), getString(R.string.toast_custom_keys_reset), Toast.LENGTH_SHORT).show();
         }
 
-        private void updateCustomLeftWinPreferenceSummary() {
-            Preference capturePref = findPreference("option_capture_left_win_key");
-            if (capturePref == null) {
-                return;
-            }
+        private void updateCustomKeyPreferenceSummaries() {
+            for (CustomKeyCaptureTarget target : CUSTOM_KEY_CAPTURE_TARGETS) {
+                Preference capturePref = findPreference(target.preferenceKey);
+                if (capturePref == null) {
+                    continue;
+                }
 
-            int keyCode = getPrefs().getInt(PreferenceConfiguration.CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING, 0);
-            int scanCode = getPrefs().getInt(PreferenceConfiguration.CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING, 0);
-            if (keyCode == 0 && scanCode == 0) {
-                capturePref.setSummary(getString(R.string.summary_capture_left_win_key));
-            }
-            else {
-                capturePref.setSummary(getString(R.string.summary_capture_left_win_key_current,
-                        KeyEvent.keyCodeToString(keyCode), scanCode));
+                int keyCode = getPrefs().getInt(target.keyCodePrefKey, 0);
+                int scanCode = getPrefs().getInt(target.scanCodePrefKey, 0);
+                if (keyCode == 0 && scanCode == 0) {
+                    capturePref.setSummary(getString(R.string.summary_capture_custom_key,
+                            getString(target.titleResId)));
+                }
+                else {
+                    capturePref.setSummary(getString(R.string.summary_capture_custom_key_current,
+                            KeyEvent.keyCodeToString(keyCode), scanCode));
+                }
             }
         }
 

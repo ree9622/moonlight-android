@@ -1,11 +1,12 @@
 package com.limelight;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -22,11 +23,19 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.limelight.utils.DeviceUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class DebugInfoActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -193,6 +202,10 @@ public class DebugInfoActivity extends AppCompatActivity implements View.OnClick
             }
             return;
         }
+        if (v.getId() == R.id.bt_share_input_log) {
+            shareInputEventLog();
+            return;
+        }
         // Device Vibration
         if (v.getId() == R.id.bt_vibrator) {
             String[] titles = new String[]{getString(R.string.debug_info_simple_vibration), getString(R.string.debug_info_continuous_hd_vibration)};
@@ -265,6 +278,51 @@ public class DebugInfoActivity extends AppCompatActivity implements View.OnClick
             editDialog.setTitle(getString(R.string.debug_info_set_amplitude));
             editDialog.setView(mSeekBar);
             editDialog.create().show();
+        }
+    }
+
+    private void shareInputEventLog() {
+        try {
+            File dir = new File(getCacheDir(), "input-diagnostics");
+            if (!dir.exists() && !dir.mkdirs()) {
+                throw new IOException("Unable to create diagnostics directory");
+            }
+
+            String timestamp = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(new Date());
+            File logFile = new File(dir, "artemis-input-events-" + timestamp + ".txt");
+            String logText = inputEventLog.length() > 0
+                    ? inputEventLog.toString()
+                    : getString(R.string.debug_input_log_empty);
+
+            StringBuilder body = new StringBuilder();
+            body.append("Artemis input diagnostics\n");
+            body.append("Android API: ").append(Build.VERSION.SDK_INT).append("\n");
+            body.append("Device: ")
+                    .append(DeviceUtils.getManufacturer())
+                    .append(" ")
+                    .append(DeviceUtils.getModel())
+                    .append("\n\n");
+            if (tx_gamepad_info != null && tx_gamepad_info.getText() != null &&
+                    tx_gamepad_info.getText().length() > 0) {
+                body.append("Gamepad info:\n").append(tx_gamepad_info.getText()).append("\n\n");
+            }
+            body.append("Input events newest first:\n").append(logText).append("\n");
+
+            try (FileOutputStream outputStream = new FileOutputStream(logFile)) {
+                outputStream.write(body.toString().getBytes(StandardCharsets.UTF_8));
+            }
+
+            Uri uri = FileProvider.getUriForFile(this,
+                    getPackageName() + ".fileprovider",
+                    logFile);
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.putExtra(Intent.EXTRA_TEXT, body.toString());
+            startActivity(Intent.createChooser(intent, getString(R.string.debug_input_share_title)));
+        } catch (Exception e) {
+            Toast.makeText(this, getString(R.string.debug_input_share_failed), Toast.LENGTH_SHORT).show();
         }
     }
 

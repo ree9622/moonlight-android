@@ -146,6 +146,16 @@ public class PreferenceConfiguration {
     public static final String META_RIGHT_ACTION_PREF_STRING = "list_right_meta_key_action";
     public static final String CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING = "custom_left_win_keycode";
     public static final String CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING = "custom_left_win_scancode";
+    public static final String CUSTOM_RIGHT_WIN_KEYCODE_PREF_STRING = "custom_right_win_keycode";
+    public static final String CUSTOM_RIGHT_WIN_SCANCODE_PREF_STRING = "custom_right_win_scancode";
+    public static final String CUSTOM_ALT_KEYCODE_PREF_STRING = "custom_alt_keycode";
+    public static final String CUSTOM_ALT_SCANCODE_PREF_STRING = "custom_alt_scancode";
+    public static final String CUSTOM_CTRL_KEYCODE_PREF_STRING = "custom_ctrl_keycode";
+    public static final String CUSTOM_CTRL_SCANCODE_PREF_STRING = "custom_ctrl_scancode";
+    public static final String CUSTOM_HANGUL_KEYCODE_PREF_STRING = "custom_hangul_keycode";
+    public static final String CUSTOM_HANGUL_SCANCODE_PREF_STRING = "custom_hangul_scancode";
+    public static final String CUSTOM_HANJA_KEYCODE_PREF_STRING = "custom_hanja_keycode";
+    public static final String CUSTOM_HANJA_SCANCODE_PREF_STRING = "custom_hanja_scancode";
 
     private static final String CHECKBOX_ENABLE_COMMIT_TEXT = "checkbox_enable_commit_text";
 
@@ -233,6 +243,16 @@ public class PreferenceConfiguration {
     private static final String DEFAULT_RIGHT_META_ACTION = META_ACTION_RIGHT_WINDOWS;
     private static final int DEFAULT_CUSTOM_LEFT_WIN_KEYCODE = 0;
     private static final int DEFAULT_CUSTOM_LEFT_WIN_SCANCODE = 0;
+    private static final int DEFAULT_CUSTOM_RIGHT_WIN_KEYCODE = 0;
+    private static final int DEFAULT_CUSTOM_RIGHT_WIN_SCANCODE = 0;
+    private static final int DEFAULT_CUSTOM_ALT_KEYCODE = 0;
+    private static final int DEFAULT_CUSTOM_ALT_SCANCODE = 0;
+    private static final int DEFAULT_CUSTOM_CTRL_KEYCODE = 0;
+    private static final int DEFAULT_CUSTOM_CTRL_SCANCODE = 0;
+    private static final int DEFAULT_CUSTOM_HANGUL_KEYCODE = 0;
+    private static final int DEFAULT_CUSTOM_HANGUL_SCANCODE = 0;
+    private static final int DEFAULT_CUSTOM_HANJA_KEYCODE = 0;
+    private static final int DEFAULT_CUSTOM_HANJA_SCANCODE = 0;
     private static final boolean DEFAULT_ENABLE_COMMIT_TEXT = false;
     private static final String DEFAULT_ONSCREEN_KEYBOARD_ALIGN_MODE = "center";
     private static final boolean DEFAULT_SHOW_OVERLAY_TOGGLE_BUTTON = false;
@@ -390,6 +410,16 @@ public class PreferenceConfiguration {
     public String rightMetaKeyAction;
     public int customLeftWinKeyCode;
     public int customLeftWinScanCode;
+    public int customRightWinKeyCode;
+    public int customRightWinScanCode;
+    public int customAltKeyCode;
+    public int customAltScanCode;
+    public int customCtrlKeyCode;
+    public int customCtrlScanCode;
+    public int customHangulKeyCode;
+    public int customHangulScanCode;
+    public int customHanjaKeyCode;
+    public int customHanjaScanCode;
 
     public boolean bindAllUsb;
     public boolean mouseEmulation;
@@ -1051,6 +1081,16 @@ private static int getFramePacingValue(Context context) {
         config.rightMetaKeyAction = prefs.getString(META_RIGHT_ACTION_PREF_STRING, DEFAULT_RIGHT_META_ACTION);
         config.customLeftWinKeyCode = prefs.getInt(CUSTOM_LEFT_WIN_KEYCODE_PREF_STRING, DEFAULT_CUSTOM_LEFT_WIN_KEYCODE);
         config.customLeftWinScanCode = prefs.getInt(CUSTOM_LEFT_WIN_SCANCODE_PREF_STRING, DEFAULT_CUSTOM_LEFT_WIN_SCANCODE);
+        config.customRightWinKeyCode = prefs.getInt(CUSTOM_RIGHT_WIN_KEYCODE_PREF_STRING, DEFAULT_CUSTOM_RIGHT_WIN_KEYCODE);
+        config.customRightWinScanCode = prefs.getInt(CUSTOM_RIGHT_WIN_SCANCODE_PREF_STRING, DEFAULT_CUSTOM_RIGHT_WIN_SCANCODE);
+        config.customAltKeyCode = prefs.getInt(CUSTOM_ALT_KEYCODE_PREF_STRING, DEFAULT_CUSTOM_ALT_KEYCODE);
+        config.customAltScanCode = prefs.getInt(CUSTOM_ALT_SCANCODE_PREF_STRING, DEFAULT_CUSTOM_ALT_SCANCODE);
+        config.customCtrlKeyCode = prefs.getInt(CUSTOM_CTRL_KEYCODE_PREF_STRING, DEFAULT_CUSTOM_CTRL_KEYCODE);
+        config.customCtrlScanCode = prefs.getInt(CUSTOM_CTRL_SCANCODE_PREF_STRING, DEFAULT_CUSTOM_CTRL_SCANCODE);
+        config.customHangulKeyCode = prefs.getInt(CUSTOM_HANGUL_KEYCODE_PREF_STRING, DEFAULT_CUSTOM_HANGUL_KEYCODE);
+        config.customHangulScanCode = prefs.getInt(CUSTOM_HANGUL_SCANCODE_PREF_STRING, DEFAULT_CUSTOM_HANGUL_SCANCODE);
+        config.customHanjaKeyCode = prefs.getInt(CUSTOM_HANJA_KEYCODE_PREF_STRING, DEFAULT_CUSTOM_HANJA_KEYCODE);
+        config.customHanjaScanCode = prefs.getInt(CUSTOM_HANJA_SCANCODE_PREF_STRING, DEFAULT_CUSTOM_HANJA_SCANCODE);
 
         config.absoluteMouseMode = prefs.getBoolean(ABSOLUTE_MOUSE_MODE_PREF_STRING, DEFAULT_ABSOLUTE_MOUSE_MODE);
         config.enableBatteryReport = prefs.getBoolean(CHECKBOX_ENABLE_BATTERY_REPORT, DEFAULT_GAMEPAD_ENABLE_BATTERY_REPORT);
