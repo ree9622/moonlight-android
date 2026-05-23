@@ -1,5 +1,8 @@
 # Artemis Android
 
+> 한국어 안내: 이 저장소의 개인 포크 변경사항은 [BACKSWIPE_KO_EN.md](BACKSWIPE_KO_EN.md)에 정리되어 있습니다.  
+> English note: This personal fork's changes are documented in [BACKSWIPE_KO_EN.md](BACKSWIPE_KO_EN.md).
+
 Previously named Moonlight Noir
 
 An open source client for [Apollo](https://github.com/ClassicOldSong/Apollo)/[Sunshine](https://github.com/LizardByte/Sunshine).

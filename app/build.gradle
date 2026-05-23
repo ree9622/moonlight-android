@@ -96,7 +96,7 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".noirdebug"
-            resValue "string", "app_label", "Diana"
+            resValue "string", "app_label", "Artemis BackSwipe"
             resValue "string", "app_label_root", "Diana (Root)"
             resValue "string", "app_label_game", "Diana (Game)"
 

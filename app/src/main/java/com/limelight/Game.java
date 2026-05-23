@@ -165,6 +165,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private static final int THREE_FINGER_TAP_THRESHOLD = 300;
     private static final int FOUR_FINGER_TAP_THRESHOLD = 300;
     private static final int FIVE_FINGER_TAP_THRESHOLD = 300;
+    private static final float BROWSER_NAV_HSCROLL_DOMINANCE = 1.25f;
 
     private Handler timerHandler;
 
@@ -208,10 +209,12 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private int specialKeyCode = KeyEvent.KEYCODE_UNKNOWN;
     private StreamContainer streamContainer;
     private long synthTouchDownTime = 0;
+    private long lastBrowserNavHScrollTime = 0;
 
     private boolean pendingDrag = false;
     private boolean isDragging = false;
     private float lastTouchDownX, lastTouchDownY;
+    private final Runnable trackpadLongPressDragRunnable = this::startPendingTrackpadDrag;
 
     private long lastAbsTouchUpTime = 0;
     private long lastAbsTouchDownTime = 0;
@@ -814,7 +817,14 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         // Initialize trackpad contexts
         for (int i = 0; i < trackpadContextMap.length; i++) {
-            trackpadContextMap[i] = new TrackpadContext(conn, i, prefConfig.trackpadSwapAxis, prefConfig.trackpadSensitivityX, prefConfig.trackpadSensitivityY);
+            trackpadContextMap[i] = new TrackpadContext(conn, i,
+                    prefConfig.trackpadSwapAxis,
+                    prefConfig.trackpadSensitivityX,
+                    prefConfig.trackpadSensitivityY,
+                    prefConfig.trackpadBrowserNav,
+                    prefConfig.trackpadBrowserNavInvert,
+                    prefConfig.trackpadBrowserNavThreshold,
+                    prefConfig.trackpadBrowserNavCooldown);
         }
 
         if (Objects.equals(appUUID, NvApp.REMOTE_INPUT_UUID)) {
@@ -2230,6 +2240,50 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         }), GameMenu.KEY_UP_DELAY);
     }
 
+    private boolean maybeSendBrowserNavFromHScroll(float hScroll, float vScroll, long eventTime) {
+        if (!prefConfig.trackpadBrowserNav) {
+            return false;
+        }
+
+        float threshold = prefConfig.trackpadBrowserNavThreshold / 120f;
+        if (Math.abs(hScroll) < threshold ||
+                Math.abs(hScroll) < Math.abs(vScroll) * BROWSER_NAV_HSCROLL_DOMINANCE) {
+            return false;
+        }
+
+        if (eventTime - lastBrowserNavHScrollTime < prefConfig.trackpadBrowserNavCooldown) {
+            return true;
+        }
+
+        lastBrowserNavHScrollTime = eventTime;
+        boolean back = hScroll < 0;
+        if (prefConfig.trackpadBrowserNavInvert) {
+            back = !back;
+        }
+        short navKey = (short)(back ? KeyboardTranslator.VK_LEFT : KeyboardTranslator.VK_RIGHT);
+        sendKeys(new short[]{KeyboardTranslator.VK_LMENU, navKey});
+        return true;
+    }
+
+    private boolean startPendingTrackpadDrag() {
+        if (!synthClickPending || !pendingDrag || isDragging || !prefConfig.trackpadLongPressDrag) {
+            return false;
+        }
+
+        pendingDrag = false;
+        isDragging = true;
+        if (prefConfig.trackpadDragDropVibration) {
+            Vibrator vibrator = ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(20, 127));
+            } else {
+                vibrator.vibrate(20);
+            }
+        }
+        conn.sendMouseButtonDown(MouseButtonPacket.BUTTON_LEFT);
+        return true;
+    }
+
     public boolean handleFocusChange(boolean hasFocus) {
         if (connected && prefConfig.smartClipboardSync) {
             if (hasFocus) {
@@ -2891,22 +2945,13 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                                         Math.pow(event.getY() - lastTouchDownY, 2)
                         );
 
-                        if (synthClickPending &&
-                                event.getEventTime() - synthTouchDownTime >= prefConfig.trackpadDragDropThreshold) {
-                            if (positionDelta > 50) {
+                        if (synthClickPending && prefConfig.trackpadLongPressDrag && !isDragging) {
+                            if (positionDelta > prefConfig.trackpadDragMoveTolerance) {
                                 pendingDrag = false;
-                            } else if (pendingDrag) {
-                                pendingDrag = false;
-                                isDragging = true;
-                                if (prefConfig.trackpadDragDropVibration) {
-                                    Vibrator vibrator = ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE));
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                        vibrator.vibrate(VibrationEffect.createOneShot(20, 127));
-                                    } else {
-                                        vibrator.vibrate(20);
-                                    }
-                                }
-                                conn.sendMouseButtonDown(MouseButtonPacket.BUTTON_LEFT);
+                                timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
+                            } else if (event.getEventTime() - synthTouchDownTime >= prefConfig.trackpadDragDropThreshold &&
+                                    startPendingTrackpadDrag()) {
+                                updateMousePosition(view, event);
                                 return true;
                             }
                         }
@@ -2923,9 +2968,14 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                                 lastTouchDownX = event.getX();
                                 lastTouchDownY = event.getY();
                                 synthTouchDownTime = event.getEventTime();
+                                timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
+                                if (prefConfig.trackpadLongPressDrag) {
+                                    timerHandler.postDelayed(trackpadLongPressDragRunnable, prefConfig.trackpadDragDropThreshold);
+                                }
                                 return true;
                             case MotionEvent.ACTION_HOVER_ENTER:
                             case MotionEvent.ACTION_UP:
+                                timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
                                 if (synthClickPending) {
                                     long timeDiff = event.getEventTime() - synthTouchDownTime;
 
@@ -2956,6 +3006,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                                 return true;
                             case MotionEvent.ACTION_BUTTON_PRESS:
                             case MotionEvent.ACTION_BUTTON_RELEASE:
+                                timerHandler.removeCallbacks(trackpadLongPressDragRunnable);
                                 synthClickPending = false;
                             default:
                                 break;
@@ -2966,9 +3017,16 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 }
 
                 if (event.getActionMasked() == MotionEvent.ACTION_SCROLL) {
+                    float hScroll = event.getAxisValue(MotionEvent.AXIS_HSCROLL);
+                    float vScroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
+
+                    if (maybeSendBrowserNavFromHScroll(hScroll, vScroll, event.getEventTime())) {
+                        return true;
+                    }
+
                     // Send the vertical scroll packet
-                    conn.sendMouseHighResScroll((short)(event.getAxisValue(MotionEvent.AXIS_VSCROLL) * 120));
-                    conn.sendMouseHighResHScroll((short)(event.getAxisValue(MotionEvent.AXIS_HSCROLL) * 120));
+                    conn.sendMouseHighResScroll((short)(vScroll * 120));
+                    conn.sendMouseHighResHScroll((short)(hScroll * 120));
                 }
 
                 if ((changedButtons & MotionEvent.BUTTON_PRIMARY) != 0) {

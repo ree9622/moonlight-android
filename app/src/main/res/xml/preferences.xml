@@ -434,6 +434,12 @@
             android:summary="@string/summary_trackpad_drag_drop_vibration"
             android:title="@string/title_trackpad_drag_drop_vibration"
             app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="checkbox_trackpad_long_press_drag"
+            android:summary="@string/summary_trackpad_long_press_drag"
+            android:title="@string/title_trackpad_long_press_drag"
+            app:iconSpaceReserved="false" />
         <com.limelight.preferences.SeekBarPreference
             android:defaultValue="250"
             android:key="seekbar_trackpad_drag_drop_threshold"
@@ -444,12 +450,57 @@
             android:summary="@string/summary_trackpad_drag_drop_threshold"
             android:title="@string/title_trackpad_drag_drop_threshold"
             app:iconSpaceReserved="false" />
+        <com.limelight.preferences.SeekBarPreference
+            android:defaultValue="160"
+            android:key="seekbar_trackpad_drag_move_tolerance"
+            seekbar:step="10"
+            seekbar:min="30"
+            android:max="300"
+            android:text="px"
+            android:summary="@string/summary_trackpad_drag_move_tolerance"
+            android:title="@string/title_trackpad_drag_move_tolerance"
+            app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="checkbox_trackpad_swap_axis"
             android:summary="@string/summary_trackpad_swap_axis"
             android:title="@string/title_trackpad_swap_axis"
             app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="checkbox_trackpad_browser_nav"
+            android:summary="@string/summary_trackpad_browser_nav"
+            android:title="@string/title_trackpad_browser_nav"
+            app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:dependency="checkbox_trackpad_browser_nav"
+            android:key="checkbox_trackpad_browser_nav_invert"
+            android:summary="@string/summary_trackpad_browser_nav_invert"
+            android:title="@string/title_trackpad_browser_nav_invert"
+            app:iconSpaceReserved="false" />
+        <com.limelight.preferences.SeekBarPreference
+            android:defaultValue="90"
+            android:dependency="checkbox_trackpad_browser_nav"
+            android:key="seekbar_trackpad_browser_nav_threshold"
+            android:max="240"
+            android:summary="@string/summary_trackpad_browser_nav_threshold"
+            android:text=""
+            android:title="@string/title_trackpad_browser_nav_threshold"
+            app:iconSpaceReserved="false"
+            seekbar:min="30"
+            seekbar:step="10" />
+        <com.limelight.preferences.SeekBarPreference
+            android:defaultValue="450"
+            android:dependency="checkbox_trackpad_browser_nav"
+            android:key="seekbar_trackpad_browser_nav_cooldown"
+            android:max="1000"
+            android:summary="@string/summary_trackpad_browser_nav_cooldown"
+            android:text="ms"
+            android:title="@string/title_trackpad_browser_nav_cooldown"
+            app:iconSpaceReserved="false"
+            seekbar:min="150"
+            seekbar:step="50" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="checkbox_force_qwerty"

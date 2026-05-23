@@ -4,7 +4,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.limelight.LimeLog;
+import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.nvstream.NvConnection;
+import com.limelight.nvstream.input.KeyboardPacket;
 import com.limelight.nvstream.input.MouseButtonPacket;
 
 public class TrackpadContext implements TouchContext {
@@ -51,6 +53,13 @@ public class TrackpadContext implements TouchContext {
     private static final int MOMENTUM_FRAME_INTERVAL_MS = 10;
     private static final int FLICK_VELOCITY_DECAY_TIMEOUT_MS = 50;
     private static final int SCROLL_TRANSITION_TIMEOUT_MS = 200;
+    private static final float BROWSER_NAV_HSCROLL_DOMINANCE = 1.25f;
+
+    private long lastBrowserNavHScrollTime = 0;
+    private boolean browserNav = true;
+    private boolean browserNavInvert = false;
+    private int browserNavThreshold = 90;
+    private int browserNavCooldown = 450;
 
     public TrackpadContext(NvConnection conn, int actionIndex) {
         this.conn = conn;
@@ -63,6 +72,15 @@ public class TrackpadContext implements TouchContext {
         this.swapAxis = swapAxis;
         this.sensitivityX = (float) sensitivityX / 100;
         this.sensitivityY = (float) sensitivityY / 100;
+    }
+
+    public TrackpadContext(NvConnection conn, int actionIndex, boolean swapAxis, int sensitivityX, int sensitivityY,
+                           boolean browserNav, boolean browserNavInvert, int browserNavThreshold, int browserNavCooldown) {
+        this(conn, actionIndex, swapAxis, sensitivityX, sensitivityY);
+        this.browserNav = browserNav;
+        this.browserNavInvert = browserNavInvert;
+        this.browserNavThreshold = browserNavThreshold;
+        this.browserNavCooldown = browserNavCooldown;
     }
 
     private final Runnable scrollTransitionRunnable = new Runnable() {
@@ -119,14 +137,20 @@ public class TrackpadContext implements TouchContext {
             double frameVelocityY = velocityY * MOMENTUM_FRAME_INTERVAL_MS;
 
             if (Math.abs(frameVelocityX) > Math.abs(frameVelocityY)) {
-                conn.sendMouseHighResHScroll((short)(-frameVelocityX * SCROLL_SPEED_FACTOR_X));
+                short hScroll = (short)(-frameVelocityX * SCROLL_SPEED_FACTOR_X);
+                if (!maybeSendBrowserNavFromHScroll(hScroll, (short)(frameVelocityY * SCROLL_SPEED_FACTOR_Y))) {
+                    conn.sendMouseHighResHScroll(hScroll);
+                }
                 if (Math.abs(frameVelocityY) * 1.05 > Math.abs(frameVelocityX)) {
                     conn.sendMouseHighResScroll((short)(frameVelocityY * SCROLL_SPEED_FACTOR_Y));
                 }
             } else {
                 conn.sendMouseHighResScroll((short)(frameVelocityY * SCROLL_SPEED_FACTOR_Y));
                 if (Math.abs(frameVelocityX) * 1.05 >= Math.abs(frameVelocityY)) {
-                    conn.sendMouseHighResHScroll((short)(-frameVelocityX * SCROLL_SPEED_FACTOR_X));
+                    short hScroll = (short)(-frameVelocityX * SCROLL_SPEED_FACTOR_X);
+                    if (!maybeSendBrowserNavFromHScroll(hScroll, (short)(frameVelocityY * SCROLL_SPEED_FACTOR_Y))) {
+                        conn.sendMouseHighResHScroll(hScroll);
+                    }
                 }
             }
 
@@ -389,14 +413,20 @@ public class TrackpadContext implements TouchContext {
                         checkForConfirmedScroll();
                         if (confirmedScroll) {
                             if (absDeltaX > absDeltaY) {
-                                conn.sendMouseHighResHScroll((short)(-sendDeltaX * SCROLL_SPEED_FACTOR_X));
+                                short hScroll = (short)(-sendDeltaX * SCROLL_SPEED_FACTOR_X);
+                                if (!maybeSendBrowserNavFromHScroll(hScroll, (short)(sendDeltaY * SCROLL_SPEED_FACTOR_Y))) {
+                                    conn.sendMouseHighResHScroll(hScroll);
+                                }
                                 if (absDeltaY * 1.05 > absDeltaX) {
                                     conn.sendMouseHighResScroll((short)(sendDeltaY * SCROLL_SPEED_FACTOR_Y));
                                 }
                             } else {
                                 conn.sendMouseHighResScroll((short)(sendDeltaY * SCROLL_SPEED_FACTOR_Y));
                                 if (absDeltaX * 1.05 >= absDeltaY) {
-                                    conn.sendMouseHighResHScroll((short)(-sendDeltaX * SCROLL_SPEED_FACTOR_X));
+                                    short hScroll = (short)(-sendDeltaX * SCROLL_SPEED_FACTOR_X);
+                                    if (!maybeSendBrowserNavFromHScroll(hScroll, (short)(sendDeltaY * SCROLL_SPEED_FACTOR_Y))) {
+                                        conn.sendMouseHighResHScroll(hScroll);
+                                    }
                                 }
                             }
                         }
@@ -481,5 +511,47 @@ public class TrackpadContext implements TouchContext {
 
     private void checkForConfirmedScroll() {
         confirmedScroll = (actionIndex == 1 && pointerCount == 2 && confirmedMove);
+    }
+
+    private boolean maybeSendBrowserNavFromHScroll(short hScroll, short vScroll) {
+        if (!browserNav) {
+            return false;
+        }
+
+        if (Math.abs(hScroll) < browserNavThreshold ||
+                Math.abs(hScroll) < Math.abs(vScroll) * BROWSER_NAV_HSCROLL_DOMINANCE) {
+            return false;
+        }
+
+        long now = System.currentTimeMillis();
+        if (now - lastBrowserNavHScrollTime < browserNavCooldown) {
+            return true;
+        }
+
+        lastBrowserNavHScrollTime = now;
+        boolean back = hScroll < 0;
+        if (browserNavInvert) {
+            back = !back;
+        }
+        short navKey = (short)(back ? KeyboardTranslator.VK_LEFT : KeyboardTranslator.VK_RIGHT);
+        sendKeys(new short[]{KeyboardTranslator.VK_LMENU, navKey});
+        return true;
+    }
+
+    private void sendKeys(short[] keys) {
+        final byte[] modifier = {(byte) 0};
+
+        for (short key : keys) {
+            conn.sendKeyboardInput(key, KeyboardPacket.KEY_DOWN, modifier[0], (byte) 0);
+            modifier[0] |= KeyboardTranslator.getModifier(key);
+        }
+
+        handler.postDelayed(() -> {
+            for (int pos = keys.length - 1; pos >= 0; pos--) {
+                short key = keys[pos];
+                modifier[0] &= (byte) ~KeyboardTranslator.getModifier(key);
+                conn.sendKeyboardInput(key, KeyboardPacket.KEY_UP, modifier[0], (byte) 0);
+            }
+        }, 25);
     }
 }
