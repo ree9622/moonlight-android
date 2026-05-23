@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Vibrator;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
@@ -56,6 +57,7 @@ import com.limelight.utils.Dialog;
 import com.limelight.utils.FileUriUtils;
 import com.limelight.utils.PerformanceDataTracker;
 import com.limelight.utils.UiHelper;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,6 +66,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class StreamSettings extends AppCompatActivity {
     private PreferenceConfiguration previousPrefs;
@@ -858,6 +865,18 @@ public class StreamSettings extends AppCompatActivity {
                 });
             }
 
+            _pref = findPreference("option_software_release");
+            if (_pref != null) {
+                _pref.setSummary(getString(R.string.summary_software_update, BuildConfig.BACKSWIPE_RELEASE_TAG));
+                _pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(@NonNull Preference preference) {
+                        checkForBackSwipeUpdate(preference.getContext());
+                        return true;
+                    }
+                });
+            }
+
             EditTextPreference bitrateEditPref = findPreference(PreferenceConfiguration.CUSTOM_BITRATE_PREF_STRING);
             if (bitrateEditPref != null) {
                 bitrateEditPref.setOnBindEditTextListener((EditText editText) -> {
@@ -974,6 +993,118 @@ public class StreamSettings extends AppCompatActivity {
             prefs.edit().putString(prefKey, newVal).apply();
 
             reloadSettings();
+        }
+
+        private void checkForBackSwipeUpdate(Context context) {
+            Toast.makeText(context, getString(R.string.toast_update_checking), Toast.LENGTH_SHORT).show();
+
+            Request request = new Request.Builder()
+                    .url(BuildConfig.BACKSWIPE_UPDATE_API_URL)
+                    .header("Accept", "application/vnd.github+json")
+                    .header("User-Agent", "Artemis-BackSwipe/" + BuildConfig.BACKSWIPE_RELEASE_TAG)
+                    .build();
+
+            new OkHttpClient().newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Activity activity = getActivity();
+                    if (activity != null) {
+                        activity.runOnUiThread(() -> showUpdateError(e.getMessage()));
+                    }
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    try (Response closeableResponse = response) {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            throw new IOException("HTTP " + response.code());
+                        }
+
+                        JSONObject release = new JSONObject(response.body().string());
+                        String latestTag = release.optString("tag_name");
+                        String releaseUrl = release.optString("html_url", BuildConfig.BACKSWIPE_RELEASES_URL);
+                        String releaseName = release.optString("name", latestTag);
+                        String apkUrl = findArm64ApkUrl(release.optJSONArray("assets"));
+
+                        Activity activity = getActivity();
+                        if (activity != null) {
+                            activity.runOnUiThread(() -> showUpdateResult(latestTag, releaseName, releaseUrl, apkUrl));
+                        }
+                    } catch (Exception e) {
+                        Activity activity = getActivity();
+                        if (activity != null) {
+                            activity.runOnUiThread(() -> showUpdateError(e.getMessage()));
+                        }
+                    }
+                }
+            });
+        }
+
+        private String findArm64ApkUrl(JSONArray assets) {
+            if (assets == null) {
+                return null;
+            }
+
+            String fallbackUrl = null;
+            for (int i = 0; i < assets.length(); i++) {
+                JSONObject asset = assets.optJSONObject(i);
+                if (asset == null) {
+                    continue;
+                }
+
+                String name = asset.optString("name");
+                String url = asset.optString("browser_download_url");
+                if (name.endsWith(".apk") && !TextUtils.isEmpty(url)) {
+                    if (name.contains("arm64")) {
+                        return url;
+                    }
+                    if (fallbackUrl == null) {
+                        fallbackUrl = url;
+                    }
+                }
+            }
+            return fallbackUrl;
+        }
+
+        private void showUpdateResult(String latestTag, String releaseName, String releaseUrl, String apkUrl) {
+            Context context = requireContext();
+            boolean hasUpdate = !TextUtils.isEmpty(latestTag) && !BuildConfig.BACKSWIPE_RELEASE_TAG.equals(latestTag);
+            String message = hasUpdate
+                    ? getString(R.string.dialog_update_available_message, BuildConfig.BACKSWIPE_RELEASE_TAG, latestTag)
+                    : getString(R.string.dialog_update_latest_message, BuildConfig.BACKSWIPE_RELEASE_TAG);
+
+            if (!TextUtils.isEmpty(releaseName) && !releaseName.equals(latestTag)) {
+                message += "\n\n" + releaseName;
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                    .setTitle(hasUpdate ? R.string.dialog_update_available_title : R.string.dialog_update_latest_title)
+                    .setMessage(message)
+                    .setNegativeButton(android.R.string.cancel, null);
+
+            if (!TextUtils.isEmpty(apkUrl)) {
+                builder.setPositiveButton(R.string.dialog_update_download_apk, (dialog, which) -> openUrl(context, apkUrl));
+                builder.setNeutralButton(R.string.dialog_update_open_release, (dialog, which) -> openUrl(context, releaseUrl));
+            }
+            else {
+                builder.setPositiveButton(R.string.dialog_update_open_release, (dialog, which) -> openUrl(context, releaseUrl));
+            }
+
+            builder.show();
+        }
+
+        private void showUpdateError(String error) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_update_error_title)
+                    .setMessage(getString(R.string.dialog_update_error_message, error))
+                    .setPositiveButton(R.string.dialog_update_open_release, (dialog, which) -> openUrl(requireContext(), BuildConfig.BACKSWIPE_RELEASES_URL))
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
+        }
+
+        private void openUrl(Context context, String url) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            context.startActivity(intent);
         }
 
         protected void reloadSettings() {

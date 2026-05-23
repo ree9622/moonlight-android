@@ -14,6 +14,10 @@ android {
         versionName "20.2.6"
         versionCode = 57
 
+        buildConfigField "String", "BACKSWIPE_RELEASE_TAG", "\"v20.2.6-backswipe-ko-5\""
+        buildConfigField "String", "BACKSWIPE_UPDATE_API_URL", "\"https://api.github.com/repos/ree9622/moonlight-android/releases/latest\""
+        buildConfigField "String", "BACKSWIPE_RELEASES_URL", "\"https://github.com/ree9622/moonlight-android/releases\""
+
         // Generate native debug symbols to allow Google Play to symbolicate our native crashes
         ndk.debugSymbolLevel = 'FULL'
     }
@@ -54,7 +58,7 @@ android {
 
             resValue "string",
                     "obtainium_app_url",
-                    "https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.limelight.noir%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FClassicOldSong%2Fmoonlight-android%22%2C%22author%22%3A%22ClassicOldSong%22%2C%22name%22%3A%22Artemis%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22nonRoot%5C%22%2C%5C%22matchGroutToUse%5C%22%3A%5C%22%241%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v(.%2B)%5C%22%7D%22%7D"
+                    "https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.limelight.noirdebug%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Free9622%2Fmoonlight-android%22%2C%22author%22%3A%22ree9622%22%2C%22name%22%3A%22Artemis%20BackSwipe%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22arm64.*debug%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v(.%2B)%5C%22%7D%22%7D"
 
             applicationId "com.limelight"
             dimension "root"
