@@ -2009,7 +2009,13 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             modifier |= KeyboardPacket.MODIFIER_CTRL;
         }
         if (event.isAltPressed()) {
-            modifier |= KeyboardPacket.MODIFIER_ALT;
+            // When the F-key remap pref is on and Right Alt is acting as the software Fn key,
+            // suppress the Alt modifier so the host doesn't see Alt+<F-key>. Left Alt still
+            // behaves normally.
+            boolean leftAltOnly = (event.getMetaState() & KeyEvent.META_ALT_LEFT_ON) != 0;
+            if (leftAltOnly || !(prefConfig.remapFkeysToNumbers && fnKeyHeld)) {
+                modifier |= KeyboardPacket.MODIFIER_ALT;
+            }
         }
         if (event.isMetaPressed()) {
             modifier |= KeyboardPacket.MODIFIER_META;
@@ -2026,6 +2032,28 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         return handleKeyDown(event) || super.onKeyDown(keyCode, event);
     }
 
+    // Tracks whether Right Alt is currently held down so we can use it as a software
+    // Fn key when remapFkeysToNumbers is enabled.
+    private boolean fnKeyHeld;
+
+    private static int remapFkeyToNumberKeyCode(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_F1:  return KeyEvent.KEYCODE_1;
+            case KeyEvent.KEYCODE_F2:  return KeyEvent.KEYCODE_2;
+            case KeyEvent.KEYCODE_F3:  return KeyEvent.KEYCODE_3;
+            case KeyEvent.KEYCODE_F4:  return KeyEvent.KEYCODE_4;
+            case KeyEvent.KEYCODE_F5:  return KeyEvent.KEYCODE_5;
+            case KeyEvent.KEYCODE_F6:  return KeyEvent.KEYCODE_6;
+            case KeyEvent.KEYCODE_F7:  return KeyEvent.KEYCODE_7;
+            case KeyEvent.KEYCODE_F8:  return KeyEvent.KEYCODE_8;
+            case KeyEvent.KEYCODE_F9:  return KeyEvent.KEYCODE_9;
+            case KeyEvent.KEYCODE_F10: return KeyEvent.KEYCODE_0;
+            case KeyEvent.KEYCODE_F11: return KeyEvent.KEYCODE_MINUS;
+            case KeyEvent.KEYCODE_F12: return KeyEvent.KEYCODE_EQUALS;
+            default: return keyCode;
+        }
+    }
+
     @Override
     public boolean handleKeyDown(KeyEvent event) {
         // Pass-through virtual navigation keys
@@ -2036,6 +2064,23 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         int deviceId = event.getDeviceId();
         if (prefConfig.ignoreSynthEvents && deviceId <= 0) {
             return false;
+        }
+
+        // F-key ↔ number row remap (for keyboards like the Nillkin foldable that
+        // emit F1–F12 on the unshifted number row). Right Alt acts as the Fn modifier
+        // and is itself consumed so it isn't sent to the host.
+        int effectiveKeyCode = event.getKeyCode();
+        if (prefConfig.remapFkeysToNumbers) {
+            if (effectiveKeyCode == KeyEvent.KEYCODE_ALT_RIGHT) {
+                fnKeyHeld = true;
+                return true;
+            }
+            if (effectiveKeyCode >= KeyEvent.KEYCODE_F1 && effectiveKeyCode <= KeyEvent.KEYCODE_F12) {
+                if (!fnKeyHeld) {
+                    effectiveKeyCode = remapFkeyToNumberKeyCode(effectiveKeyCode);
+                }
+                // else: leave as F-key; user is holding the software Fn modifier
+            }
         }
 
         // Handle a synthetic back button event that some Android OS versions
@@ -2069,7 +2114,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         // Try the keyboard handler if it wasn't handled as a game controller
         if (!handled) {
             // Let this method take duplicate key down events
-            if (handleSpecialKeys(event.getKeyCode(), true)) {
+            if (handleSpecialKeys(effectiveKeyCode, true)) {
                 return true;
             }
 
@@ -2080,9 +2125,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
             // We'll send it as a raw key event if we have a key mapping, otherwise we'll send it
             // as UTF-8 text (if it's a printable character).
-            short translated = keyboardTranslator.translate(event.getKeyCode(), event.getScanCode(), deviceId);
+            short translated = keyboardTranslator.translate(effectiveKeyCode, event.getScanCode(), deviceId);
             if (translated == 0) {
-                if (prefConfig.backAsMeta && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                if (prefConfig.backAsMeta && effectiveKeyCode == KeyEvent.KEYCODE_BACK) {
                     translated = 0x5b; // Meta key
                 } else {
                     // Make sure it has a valid Unicode representation and it's not a dead character
@@ -2106,7 +2151,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             }
 
             conn.sendKeyboardInput(translated, KeyboardPacket.KEY_DOWN, getModifierState(event),
-                    keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), deviceId) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
+                    keyboardTranslator.hasNormalizedMapping(effectiveKeyCode, deviceId) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
         }
 
         return true;
@@ -2127,6 +2172,20 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         int deviceId = event.getDeviceId();
         if (prefConfig.ignoreSynthEvents && deviceId <= 0) {
             return false;
+        }
+
+        // Mirror of the F-key ↔ number row remap done in handleKeyDown.
+        int effectiveKeyCode = event.getKeyCode();
+        if (prefConfig.remapFkeysToNumbers) {
+            if (effectiveKeyCode == KeyEvent.KEYCODE_ALT_RIGHT) {
+                fnKeyHeld = false;
+                return true;
+            }
+            if (effectiveKeyCode >= KeyEvent.KEYCODE_F1 && effectiveKeyCode <= KeyEvent.KEYCODE_F12) {
+                if (!fnKeyHeld) {
+                    effectiveKeyCode = remapFkeyToNumberKeyCode(effectiveKeyCode);
+                }
+            }
         }
 
         // Handle a synthetic back button event that some Android OS versions
@@ -2157,7 +2216,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         // Try the keyboard handler if it wasn't handled as a game controller
         if (!handled) {
-            if (handleSpecialKeys(event.getKeyCode(), false)) {
+            if (handleSpecialKeys(effectiveKeyCode, false)) {
                 return true;
             }
 
@@ -2166,9 +2225,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 return false;
             }
 
-            short translated = keyboardTranslator.translate(event.getKeyCode(), event.getScanCode(), deviceId);
+            short translated = keyboardTranslator.translate(effectiveKeyCode, event.getScanCode(), deviceId);
             if (translated == 0) {
-                if (prefConfig.backAsMeta && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                if (prefConfig.backAsMeta && effectiveKeyCode == KeyEvent.KEYCODE_BACK) {
                     translated = 0x5b; // Meta key
                 } else {
                     // If we sent this event as UTF-8 on key down, also report that it was handled
@@ -2179,7 +2238,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             }
 
             conn.sendKeyboardInput(translated, KeyboardPacket.KEY_UP, getModifierState(event),
-                    keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), deviceId) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
+                    keyboardTranslator.hasNormalizedMapping(effectiveKeyCode, deviceId) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
         }
 
         return true;

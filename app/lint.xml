@@ -4,4 +4,5 @@
         <ignore path="**/bcpkix-jdk15on-*.jar"/>
     </issue>
     <issue id="MissingThemeAttr" severity="error" />
+    <issue id="ExtraTranslation" severity="ignore" />
 </lint>
