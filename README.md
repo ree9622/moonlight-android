@@ -11,6 +11,41 @@ Artemis is currently the best fork of Moonlight with loads of optimizations for 
 
 A more seamless experience with virtual display will be Artemis paired with [Apollo](https://github.com/ClassicOldSong/Apollo).
 
+# 한국어 안내
+
+Artemis Android는 이전에 Moonlight Noir로 불렸던 Android용 게임 스트리밍 클라이언트입니다. Windows PC의 게임을 Android 기기로 스트리밍할 수 있으며, 집 안 네트워크뿐 아니라 인터넷을 통한 원격 접속도 목표로 합니다.
+
+이 프로젝트는 Moonlight Android의 포크이며, Apollo 또는 Sunshine 서버와 함께 사용할 수 있습니다. 특히 Apollo와 조합하면 가상 디스플레이, 클립보드 동기화, 서버 명령 연동 같은 확장 기능을 더 자연스럽게 사용할 수 있습니다.
+
+## 주요 특징
+
+- 사용자 정의 가상 버튼 가져오기/내보내기
+- 사용자 정의 해상도와 비트레이트
+- 일반 마우스, 멀티터치, 터치패드, 로컬 커서 등 다양한 마우스 모드
+- 외부 모니터 모드와 폴더블 기기용 상단 표시 모드
+- 세로 모드, 화면 회전, 화면 맞춤/채움/늘림 비디오 스케일
+- Android 태블릿 트랙패드 클릭, 스크롤, 우클릭 개선
+- Apollo 연동 기반 가상 디스플레이, 서버 명령, 클립보드 동기화
+- 외부 디스플레이용 SBS 3D 지원
+
+## 다운로드
+
+- APK는 원본 프로젝트 릴리스 페이지에서 받을 수 있습니다.
+- Obtainium을 사용하면 업데이트를 더 편하게 받을 수 있습니다.
+
+## 빌드 방법
+
+1. Android Studio와 Android NDK를 설치합니다.
+2. 저장소 루트에서 `git submodule update --init --recursive`를 실행합니다.
+3. `local.properties` 파일을 만들고 `ndk.dir=` 값에 NDK 경로를 지정합니다.
+4. Android Studio 또는 Gradle로 APK를 빌드합니다.
+
+## 참고
+
+- 이 저장소는 Moonlight Android의 포크 기반 프로젝트입니다.
+- 일부 기능은 Apollo와 함께 사용할 때 가장 잘 동작합니다.
+- 원본 Moonlight/Sunshine과의 호환성은 프로젝트 방향에 따라 달라질 수 있습니다.
+
 # Features
 
 If you switch back to the main stream version, you'll be missing the following awesome features which are very unlikely to be added there:
